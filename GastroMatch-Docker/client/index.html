@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastroMatch</title>  
+    
+    <style>
+        /* --- ESTILOS VANILLA CSS (Sin Frameworks) --- */
+        :root {
+            --primary: #ef4444; --primary-hover: #dc2626;
+            --secondary: #f3f4f6; --text-main: #111827; --text-muted: #6b7280;
+            --success: #22c55e; --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6; color: var(--text-main);
+            margin: 0; min-height: 100vh;
+        }
+        .hidden { display: none !important; }
+        .view-section { display: none; min-height: 100vh; padding: 20px; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; }
+        .view-section.active { display: flex; }
+        
+        /* Componentes */
+        .card-panel { background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow-lg); width: 100%; max-width: 400px; text-align: center; }
+        .btn { padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: var(--text-main); }
+        .input-field { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        
+        /* Tarjeta Swipe */
+        .scene { width: 100%; max-width: 350px; aspect-ratio: 3/4; perspective: 1000px; position: relative; }
+        .card-3d { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: var(--shadow-lg); border-radius: var(--radius); }
+        .card-3d.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: white; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+        .card-face.back { transform: rotateY(180deg); }
+        .card-image-wrapper { flex: 1; position: relative; background: #e5e7eb; }
+        .card-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .card-gradient { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 20px; box-sizing: border-box; }
+        
+        /* Botones Acción */
+        .actions { display: flex; gap: 20px; margin-top: 20px; }
+        .btn-circle { width: 60px; height: 60px; border-radius: 50%; border: none; box-shadow: var(--shadow-lg); cursor: pointer; display: flex; align-items: center; justify-content: center; background: white; transition: transform 0.1s; font-size: 1.5rem; }
+        .btn-circle:active { transform: scale(0.95); }
+        .btn-circle.no { color: var(--primary); border: 2px solid #fee2e2; }
+        .btn-circle.yes { background: var(--success); color: white; }
+    </style>
+</head>
+<body>
+    <!-- VISTA HOME -->
+    <section id="view-home" class="view-section active">
+        <div class="card-panel">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">GastroMatch 🍔</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Elige dónde comer sin peleas</p>
+            <input type="text" id="username-input" placeholder="Tu nombre" class="input-field">
+            <button onclick="app.controller.createRoom()" class="btn btn-primary" style="margin-bottom: 10px;">Crear Sala</button>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="room-code-input" placeholder="CÓDIGO" class="input-field" style="margin-bottom:0; text-transform:uppercase;">
+                <button onclick="app.controller.joinRoom()" class="btn btn-secondary" style="width: auto;">Unirse</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA LOBBY -->
+    <section id="view-lobby" class="view-section">
+        <div class="card-panel">
+            <p style="font-size: 0.9rem; color: var(--text-muted);">CÓDIGO DE SALA</p>
+            <h2 id="display-room-code" style="font-size: 2.5rem; letter-spacing: 2px; color: var(--primary); margin: 0 0 20px 0;">---</h2>
+            <div style="text-align: left; background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>Participantes:</strong>
+                <ul id="participants-list" style="padding-left: 20px; margin: 10px 0;"></ul>
+            </div>
+            <button onclick="app.controller.startVoting()" class="btn btn-primary">¡Empezar a Votar!</button>
+        </div>
+    </section>
+
+    <!-- VISTA SWIPE -->
+    <section id="view-swipe" class="view-section">
+        <div id="match-notification" class="hidden" style="position: absolute; top: 20px; z-index: 100;">
+            <button onclick="app.router.navigate('match')" class="btn" style="background: var(--success); color: white;">¡MATCH ENCONTRADO!</button>
+        </div>
+        
+        <div class="scene">
+            <div id="card-inner" class="card-3d">
+                <button onclick="app.controller.toggleFlip()" style="position: absolute; top: 10px; right: 10px; z-index: 10; padding: 8px; border-radius: 50%; border: none; cursor: pointer; background: white;">🗺️</button>
+                
+                <!-- Frontal -->
+                <div class="card-face">
+                    <div class="card-image-wrapper">
+                        <img id="card-image" src="" alt="Restaurante">
+                        <div class="card-gradient">
+                            <h2 id="card-name" style="margin:0;">Nombre</h2>
+                            <p id="card-info" style="margin:5px 0 0 0; opacity: 0.9;">Tipo • €€</p>
+                        </div>
+                    </div>
+                    <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>⭐ <span id="card-rating">4.5</span></span>
+                        <span style="color: blue; cursor: pointer;" onclick="app.controller.toggleFlip()">Ver mapa</span>
+                    </div>
+                </div>
+
+                <!-- Trasera (Mapa) -->
+                <div class="card-face back">
+                    <iframe id="card-map-frame" width="100%" height="100%" style="border:0;" loading="lazy"></iframe>
+                    <div style="padding: 15px; text-align: center;">
+                        <button onclick="app.controller.toggleFlip()" class="btn btn-secondary">Volver a foto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button onclick="app.controller.handleVote(false)" class="btn-circle no">❌</button>
+            <button onclick="app.controller.handleVote(true)" class="btn-circle yes">❤️</button>
+        </div>
+    </section>
+
+    <!-- VISTA MATCH -->
+    <section id="view-match" class="view-section">
+        <div class="card-panel">
+            <h1 style="color: var(--success);">¡Es un Match! 🎉</h1>
+            <div id="matches-list"></div>
+            <button onclick="app.router.navigate('home')" class="btn btn-secondary" style="margin-top: 20px;">Volver</button>
+        </div>
+    </section>
+
+    <script src="js/model.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
