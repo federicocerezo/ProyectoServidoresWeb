@@ -1,39 +1,12 @@
 {
-  "name": "proyectoservidoresweb",
-  "version": "1.0.0",
-  "description": "Proyecto de programación en servidores web por Federico Cerezo, Jorge Cavero y Pablo de la Iglesia",
-  "main": "src/app.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/federicocerezo/ProyectoServidoresWeb.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/federicocerezo/ProyectoServidoresWeb/issues"
-  },
-  "homepage": "https://github.com/federicocerezo/ProyectoServidoresWeb#readme",
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.0",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.8.0",
-    "helmet": "^7.0.0",
-    "jsonwebtoken": "^9.0.0",
-    "pg": "^8.11.0",
-    "swagger-ui-express": "^4.6.3",
-    "yamljs": "^0.3.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

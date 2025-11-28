@@ -1,37 +1,29 @@
+
+version: '3.8'
 services:
-  backend:
+  mongo: 
+    image: mongo:latest
+    container_name: gastromatch-db 
+    ports: 
+      - "27017:27017" 
+    volumes: 
+      - mongo-data:/data/db
+  backend: 
     build: ./backend
-    container_name: backend
-    restart: always
-    env_file: ./backend/.env
+    container_name: gastromatch-backend
     ports:
-      - "3000:3000"
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    container_name: postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: superpassword123   # MODIFICADO
-      POSTGRES_DB: proyecto_db              # MODIFICADO
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  frontend:
-    image: nginx:latest
-    container_name: frontend
-    volumes:
-      - ./frontend:/usr/share/nginx/html
-    ports:
-      - "8080:80"
-    depends_on:
+     - "5000:5000"
+    environment: 
+      - MONGO_URI=mongodb://mongo:27017/gastromatch 
+      - PORT=5000 
+    depends_on: 
+      - mongo  
+  frontend: 
+    build: ./frontend 
+    container_name: gastromatch-frontend 
+    ports: 
+      - "8080:80" 
+    depends_on: 
       - backend
-
-volumes:
-  pgdata:
-
+volumes: 
+    mongo-data:
