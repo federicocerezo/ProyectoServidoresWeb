@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    env_file: ./backend/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: superpassword123   # MODIFICADO
+      POSTGRES_DB: proyecto_db              # MODIFICADO
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  frontend:
+    image: nginx:latest
+    container_name: frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+
