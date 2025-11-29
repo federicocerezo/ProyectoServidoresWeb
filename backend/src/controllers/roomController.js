@@ -1,5 +1,5 @@
 const Room = require("../models/Room");
-
+const Restaurant = require('../models/restaurant');
 exports.createRoom = async (req, res) => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -42,4 +42,14 @@ exports.vote = async (req, res) => {
 exports.getRoom = async (req, res) => {
     const room = await Room.findOne({ code: req.params.code });
     res.json(room);
+};
+
+// Incluimos aquí la lógica de restaurantes para que funcione con tu roomRoutes actual
+exports.getRestaurants = async (req, res) => {
+    try {
+        const restaurants = await Restaurant.find();
+        res.json(restaurants);
+    } catch (error) {
+        res.status(500).json({ error: 'Error obteniendo restaurantes' });
+    }
 };

@@ -104,4 +104,12 @@ router.post('/vote', roomController.vote);
  */
 router.get('/room/:code', roomController.getRoom);
 
+/**
+ * @swagger
+ * /api/restaurants:
+ * get:
+ * summary: Obtener lista de todos los restaurantes
+ */
+router.get("/restaurants", roomController.getRestaurants);
+
 module.exports = router;
