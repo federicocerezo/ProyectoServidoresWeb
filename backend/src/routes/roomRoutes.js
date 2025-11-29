@@ -103,5 +103,6 @@ router.post('/vote', roomController.vote);
  *         description: Sala no encontrada
  */
 router.get('/room/:code', roomController.getRoom);
-
+router.post('/start-game', roomController.startGame);
+router.post('/delete-room', roomController.deleteRoom);
 module.exports = router;

@@ -15,31 +15,80 @@ exports.createRoom = async (req, res) => {
 
 exports.joinRoom = async (req, res) => {
     const { code, username } = req.body;
-    const room = await Room.findOne({ code });
+    // Usamos findOne para comprobar estado antes de actualizar
+    let room = await Room.findOne({ code });
 
     if (!room) return res.status(404).json({ error: "Sala no existe" });
-    if (!room.users.includes(username)) {
-        room.users.push(username);
-        await room.save();
+    
+    // 1. BLOQUEAR ENTRADA SI YA EMPEZÓ
+    if (room.status !== 'lobby') {
+        return res.json({ success: false, error: "La votación ya ha comenzado" });
     }
+
+    // Si todo está bien, añadimos al usuario (usando la lógica atómica que vimos antes)
+    room = await Room.findOneAndUpdate(
+        { code },
+        { $addToSet: { users: username } },
+        { new: true }
+    );
 
     res.json({ success: true, room });
 };
-
 exports.vote = async (req, res) => {
     const { code, restaurantId } = req.body;
+    const voteField = `votes.${restaurantId}`;
 
-    const room = await Room.findOne({ code });
+    const room = await Room.findOneAndUpdate(
+        { code },
+        { $inc: { [voteField]: 1 } }, // Incrementa en 1 atómicamente
+        { new: true }
+    );
+
     if (!room) return res.status(404).json({ error: "Sala no existe" });
 
-    const current = room.votes.get(String(restaurantId)) || 0;
-    room.votes.set(String(restaurantId), current + 1);
-
-    await room.save();
     res.json({ success: true });
 };
 
+// backend/src/controllers/roomController.js
+
 exports.getRoom = async (req, res) => {
     const room = await Room.findOne({ code: req.params.code });
-    res.json(room);
+    
+    if (!room) return res.status(404).json({ error: "Sala no encontrada" });
+
+    // LÓGICA DE MATCH:
+    // Convertimos el Map de votos a un array de IDs ganadores
+    const matches = [];
+    const totalUsers = room.users.length;
+
+    if (room.votes) {
+        // room.votes es un Map en Mongoose
+        for (const [restId, count] of room.votes) {
+            // Si los votos igualan o superan al número de usuarios, es match
+            if (count >= totalUsers && totalUsers > 0) {
+                matches.push(Number(restId));
+            }
+        }
+    }
+
+    // Devolvemos la sala y la lista de matches calculada
+    // Convertimos a objeto plano para poder añadir la propiedad extra 'matches'
+    res.json({ ...room.toObject(), matches });
+};
+exports.startGame = async (req, res) => {
+    const { code } = req.body;
+    const room = await Room.findOneAndUpdate(
+        { code },
+        { status: 'voting' },
+        { new: true }
+    );
+    if (!room) return res.status(404).json({ error: "Sala no existe" });
+    res.json({ success: true, room });
+};
+
+// 3. ELIMINAR SALA
+exports.deleteRoom = async (req, res) => {
+    const { code } = req.body;
+    await Room.findOneAndDelete({ code });
+    res.json({ success: true });
 };
