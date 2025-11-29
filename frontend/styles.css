@@ -92,3 +92,21 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
     font-size: 1.2rem;
     align-self: center;
 }
+.card-compact {
+    max-width: 380px; /* Ancho máximo controlado */
+    width: 100%;
+    margin: 0 auto;
+    text-align: center; /* Centrar textos */
+}
+
+/* NUEVO: Imagen de Match más pequeña */
+.match-img-small {
+    width: 100%;
+    max-width: 220px; /* No pasará de este ancho */
+    height: 160px;    /* Altura fija */
+    object-fit: cover; /* Recorta la imagen para que no se deforme */
+    border-radius: 10px;
+    margin: 10px auto;
+    display: block;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}

@@ -138,10 +138,12 @@ function showMatch(matchId) {
     const match = Model.restaurants.find(r => r.id === matchId);
     document.getElementById("view-swipe").classList.add("hidden");
     document.getElementById("view-match").classList.remove("hidden");
+    
+    // CAMBIO AQUÍ: Usamos la clase 'match-img-small'
     document.getElementById("match-result").innerHTML = `
-        <img src="${match.image}" style="width:100%; border-radius:10px;">
-        <h2>${match.name}</h2>
-        <p>${match.type} - ${match.price}</p>
+        <img src="${match.image}" class="match-img-small">
+        <h2 style="margin: 10px 0;">${match.name}</h2>
+        <p style="color: #666;">${match.type} • ${match.price}</p>
     `;
     
     // Guardar historial en backend
