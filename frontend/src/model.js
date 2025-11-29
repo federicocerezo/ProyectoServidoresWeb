@@ -4,7 +4,7 @@ const Model = {
     participants: [],
     currentIndex: 0,
     matches: [],
-
+    activeFilters: { type: 'Any', price: 'Any' },
     restaurants: [
         { id: 1, name: "La Burgería", type: "Americana", price: "€€", rating: 4.5, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60" },
         { id: 2, name: "Sushi Zen", type: "Japonesa", price: "€€€", rating: 4.8, image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=500&q=60" },

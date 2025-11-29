@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <button onclick="window.location.href='home.html'" class="btn-small" style="margin-bottom: 10px;">← Volver</button>
+        
+        <div class="card-panel">
+            <h1 id="acc-username">Cargando...</h1>
+            <p style="color: #666;">Gestiona tu perfil y preferencias.</p>
+            
+            <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
+
+            <h3>❤️ Mis Favoritos</h3>
+            <div id="favorites-list" style="margin-bottom: 30px;">
+                <p>Cargando favoritos...</p>
+            </div>
+
+            <button onclick="Auth.logout()" class="btn btn-secondary" style="color: var(--primary);">Cerrar Sesión</button>
+        </div>
+    </div>
+    <script src="src/model.js"></script>
+    <script src="src/auth.js"></script>
+    <script src="src/account.js"></script>
+</body>
+</html>

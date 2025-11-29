@@ -2,10 +2,15 @@ const Room = require("../models/Room");
 
 exports.createRoom = async (req, res) => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-
+    
+    // Recibimos filtros del body (si existen)
+    const filters = req.body.filters || { type: 'Any', price: 'Any' };
+    const allowedIds = req.body.allowedIds || [];
+    
     const newRoom = new Room({
         code,
-        users: [req.body.username]
+        users: [req.body.username],
+        filters: filters // Guardamos los filtros
     });
 
     await newRoom.save();

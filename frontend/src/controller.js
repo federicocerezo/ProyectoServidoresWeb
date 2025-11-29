@@ -4,22 +4,39 @@ const Controller = {
     init: () => {
         View.showSection("home");
     },
-
-    createRoom: async () => {
+    login: () => {
         const user = document.getElementById("username-input").value;
         if (!user) return alert("Nombre obligatorio");
+        Model.user = user;
+        document.getElementById("dashboard-username").innerText = user;
+        View.renderHistory(); // Cargar historial
+        View.showSection("dashboard");
+    },
+
+    logout: () => {
+        Model.user = "";
+        View.showSection("home");
+    },
+
+    createRoom: async () => {
+        const type = document.getElementById("filter-type").value;
+        const price = document.getElementById("filter-price").value;
 
         const res = await fetch(`${API_URL}/create-room`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: user })
+            body: JSON.stringify({ 
+                username: Model.user,
+                filters: { type, price } // Enviamos filtros
+            })
         });
 
         const data = await res.json();
-
-        Model.user = user;
         Model.roomCode = data.roomCode;
         Model.participants = data.room.users;
+        
+        // Guardamos filtros en el modelo local
+        Model.activeFilters = data.room.filters || { type: 'Any', price: 'Any' };
 
         app.router.navigate("lobby");
         Controller.startPolling();
@@ -27,10 +44,11 @@ const Controller = {
 
     joinRoom: async () => {
          // Copia tu joinRoom actual, pero maneja el error de "Ya empezó"
-        const user = document.getElementById("username-input").value;
+        const user = document.getElementById("username-input").value || Model.user; // Soporta login previo
         const code = document.getElementById("room-code-input").value;
         if (!user || !code) return alert("Datos incompletos");
-
+        
+        
         const res = await fetch(`${API_URL}/join-room`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -40,6 +58,7 @@ const Controller = {
 
         if (!data.success) return alert(data.error); // Aquí saltará "La votación ya ha comenzado"
 
+        Model.activeFilters = data.room.filters || { type: 'Any', price: 'Any' };
         Model.user = user;
         Model.roomCode = code;
         Model.participants = data.room.users;
@@ -48,12 +67,47 @@ const Controller = {
     },
 
     startVoting: async () => {
+        // Primero, avisamos al backend
         await fetch(`${API_URL}/start-game`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: Model.roomCode })
         });
-        // No hacemos navigate aquí, dejamos que el polling lo detecte
+
+        // FILTRADO LOCAL
+        let filtered = Model.restaurants;
+        
+        // Filtrar por Tipo
+        if (Model.activeFilters.type !== 'Any') {
+            filtered = filtered.filter(r => r.type === Model.activeFilters.type);
+        }
+        // Filtrar por Precio
+        if (Model.activeFilters.price !== 'Any') {
+            filtered = filtered.filter(r => r.price === Model.activeFilters.price);
+        }
+
+        if (filtered.length === 0) {
+            alert("No hay restaurantes con esos filtros 😢. Mostrando todos.");
+            // Si no hay, dejamos todos para no romper el juego
+        } else {
+            // Reemplazamos temporalmente la lista del modelo
+            // Nota: Para hacerlo bien, deberíamos tener una lista 'original' y una 'display', 
+            // pero para este ejemplo, sobrescribir funciona si recargamos la página al acabar.
+            Model.restaurants = filtered;
+        }
+
+        app.router.navigate("swipe");
+    },
+    saveMatchToHistory: (match) => {
+        const history = JSON.parse(localStorage.getItem('gastroHistory') || '[]');
+        const newEntry = {
+            name: match.name,
+            type: match.type,
+            price: match.price,
+            date: new Date().toLocaleDateString()
+        };
+        history.unshift(newEntry); // Añadir al principio
+        localStorage.setItem('gastroHistory', JSON.stringify(history));
     },
 
     handleVote: async (liked) => {
@@ -112,6 +166,10 @@ const Controller = {
                 // ... (Lógica de matches anterior) ...
                 if (data.matches && data.matches.length > 0) {
                     Model.matches = Model.restaurants.filter(r => data.matches.includes(r.id));
+                    if (currentSection === "view-match" && !Model.historySaved) {
+                        Model.matches.forEach(m => Controller.saveMatchToHistory(m));
+                        Model.historySaved = true; // Flag temporal
+                    }
                 }
 
                 if (currentSection === "view-lobby") {

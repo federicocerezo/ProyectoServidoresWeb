@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./database");
 const roomRoutes = require("./routes/roomRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 connectDB();
 
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", roomRoutes);
+app.use("/api/auth", authRoutes);
 
 // --- Swagger ---
 const setupSwagger = require('./swagger');
