@@ -2,22 +2,39 @@ const API_ROOM = "http://localhost:5000/api";
 const user = localStorage.getItem("user");
 const token = localStorage.getItem("token");
 
-if (!user || !token) window.location.href = "index.html";
+// Validación de sesión
+if (!user || !token) {
+    console.warn("No hay usuario o token, redirigiendo...");
+    window.location.href = "index.html";
+}
 
-document.getElementById("username-display").innerText = user;
+if(document.getElementById("username-display")) {
+    document.getElementById("username-display").innerText = user;
+}
 
 const Home = {
-    // CORRECCIÓN: Recibimos 'btn' como argumento
     createRoom: async (btn) => {
-        const type = document.getElementById("filter-type").value;
-        const price = document.getElementById("filter-price").value;
+        console.log("➡️ Intento de crear sala...");
         
-        // Efecto visual de carga
-        const originalText = btn.innerText;
-        btn.innerText = "Creando...";
-        btn.disabled = true;
+        // 1. Obtener valores con protección
+        const typeSelect = document.getElementById("filter-type");
+        const priceSelect = document.getElementById("filter-price");
+        
+        const type = typeSelect ? typeSelect.value : "Any";
+        const price = priceSelect ? priceSelect.value : "Any";
+        
+        console.log(`Filtros seleccionados: Tipo=${type}, Precio=${price}`);
+
+        // 2. Manejo visual del botón (Defensivo: funciona aunque 'btn' sea undefined)
+        let originalText = "Crear Nueva Sala";
+        if (btn && btn.innerText) {
+            originalText = btn.innerText;
+            btn.innerText = "Creando...";
+            btn.disabled = true;
+        }
 
         try {
+            console.log("📡 Enviando petición al backend...");
             const res = await fetch(`${API_ROOM}/create-room`, {
                 method: "POST",
                 headers: { 
@@ -31,27 +48,36 @@ const Home = {
             });
             
             const data = await res.json();
+            console.log("Respuesta servidor:", data);
             
             if (data.success) {
-                // Redirigir como anfitrión
+                console.log("✅ Sala creada. Redirigiendo...");
                 window.location.href = `game.html?code=${data.roomCode}&isHost=true`;
             } else {
-                alert("Error al crear la sala");
-                btn.innerText = originalText;
-                btn.disabled = false;
+                alert("Error al crear la sala: " + (data.error || "Desconocido"));
+                if(btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
             }
         } catch (e) {
-            console.error(e);
-            alert("Error de conexión");
-            btn.disabled = false;
-            btn.innerText = originalText;
+            console.error("❌ Error CRÍTICO:", e);
+            alert("Error de conexión. Revisa la consola (F12).");
+            if(btn) {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
     },
 
     createFavoritesRoom: async (btn) => {
-        const originalText = btn.innerText;
-        btn.innerText = "Cargando...";
-        btn.disabled = true;
+        console.log("➡️ Intento de crear sala favoritos...");
+        let originalText = "Sala Favoritos";
+        if (btn) {
+            originalText = btn.innerText;
+            btn.innerText = "Cargando...";
+            btn.disabled = true;
+        }
 
         try {
             const resUser = await fetch(`${API_ROOM}/auth/profile`, {
@@ -60,8 +86,10 @@ const Home = {
             const profile = await resUser.json();
 
             if (!profile.favorites || profile.favorites.length === 0) {
-                btn.innerText = originalText;
-                btn.disabled = false;
+                if(btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
                 return alert("⚠️ No tienes favoritos guardados. ¡Juega una partida y da 'Like' a alguno!");
             }
 
@@ -80,15 +108,19 @@ const Home = {
                 window.location.href = `game.html?code=${data.roomCode}&isHost=true`;
             } else {
                  alert("Error creando sala");
-                 btn.innerText = originalText;
-                 btn.disabled = false;
+                 if(btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                 }
             }
 
         } catch (e) {
             console.error(e);
             alert("Error al acceder a tus favoritos");
-            btn.innerText = originalText;
-            btn.disabled = false;
+            if(btn) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
     },
 
@@ -98,9 +130,12 @@ const Home = {
 
         if (!code) return alert("Introduce un código de sala");
         
-        const originalText = btn.innerText;
-        btn.innerText = "Entrando...";
-        btn.disabled = true;
+        let originalText = "Entrar";
+        if (btn) {
+            originalText = btn.innerText;
+            btn.innerText = "Entrando...";
+            btn.disabled = true;
+        }
 
         try {
             const res = await fetch(`${API_ROOM}/join-room`, {
@@ -112,18 +147,21 @@ const Home = {
             const data = await res.json();
             
             if (data.success) {
-                // Redirigir como invitado (isHost=false)
                 window.location.href = `game.html?code=${code}&isHost=false`;
             } else {
                 alert(data.error || "No se pudo entrar a la sala");
-                btn.innerText = originalText;
-                btn.disabled = false;
+                if (btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
             }
         } catch (e) {
             console.error(e);
             alert("Error de conexión");
-            btn.innerText = originalText;
-            btn.disabled = false;
+            if (btn) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
     }
 };
