@@ -1,5 +1,5 @@
 const Room = require("../models/Room");
-const Restaurant = require('../models/restaurant');
+const Restaurant = require('../models/restaurants');
 exports.createRoom = async (req, res) => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
