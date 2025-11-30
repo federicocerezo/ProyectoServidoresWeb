@@ -19,13 +19,17 @@ const Home = {
         // 1. Obtener valores con protección
         const typeSelect = document.getElementById("filter-type");
         const priceSelect = document.getElementById("filter-price");
+        // --- CAMBIO AQUÍ: Capturar el elemento del límite ---
+        const limitSelect = document.getElementById("filter-limit");
         
         const type = typeSelect ? typeSelect.value : "Any";
         const price = priceSelect ? priceSelect.value : "Any";
+        // --- CAMBIO AQUÍ: Obtener el valor (default a 20 si no existe) ---
+        const limit = limitSelect ? limitSelect.value : "20";
         
-        console.log(`Filtros seleccionados: Tipo=${type}, Precio=${price}`);
+        console.log(`Filtros seleccionados: Tipo=${type}, Precio=${price}, Limite=${limit}`);
 
-        // 2. Manejo visual del botón (Defensivo: funciona aunque 'btn' sea undefined)
+        // 2. Manejo visual del botón...
         let originalText = "Crear Nueva Sala";
         if (btn && btn.innerText) {
             originalText = btn.innerText;
@@ -43,10 +47,12 @@ const Home = {
                 },
                 body: JSON.stringify({ 
                     username: user, 
-                    filters: { type, price } 
+                    // --- CAMBIO AQUÍ: Añadir limit al objeto filters ---
+                    filters: { type, price, limit } 
                 })
             });
             
+            // ... resto del código igual ...
             const data = await res.json();
             console.log("Respuesta servidor:", data);
             
