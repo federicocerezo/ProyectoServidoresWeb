@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const RoomSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true },
     users: [{ type: String }],
+    // NUEVO: Array para saber qué usuarios ya terminaron todas las cartas
+    usersDone: [{ type: String }],
     votes: { type: Map, of: Number, default: {} },
     status: { type: String, default: 'lobby' },
-    // NUEVO: Filtros de la sala
     filters: {
         type: { type: String, default: 'Any' },
         price: { type: String, default: 'Any' }

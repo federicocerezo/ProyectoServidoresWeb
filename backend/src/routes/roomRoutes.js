@@ -105,4 +105,5 @@ router.post('/vote', roomController.vote);
 router.get('/room/:code', roomController.getRoom);
 router.post('/start-game', roomController.startGame);
 router.post('/delete-room', roomController.deleteRoom);
+router.post('/finish-voting', roomController.finishVoting);
 module.exports = router;

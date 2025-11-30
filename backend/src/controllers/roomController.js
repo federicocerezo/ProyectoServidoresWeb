@@ -56,29 +56,41 @@ exports.vote = async (req, res) => {
 
 // backend/src/controllers/roomController.js
 
+// NUEVO: Marcar usuario como finalizado
+exports.finishVoting = async (req, res) => {
+    const { code, username } = req.body;
+    await Room.findOneAndUpdate(
+        { code },
+        { $addToSet: { usersDone: username } }
+    );
+    res.json({ success: true });
+};
+
+// MODIFICADO: Detectar Fin de Juego (No Match)
 exports.getRoom = async (req, res) => {
     const room = await Room.findOne({ code: req.params.code });
-    
     if (!room) return res.status(404).json({ error: "Sala no encontrada" });
 
-    // LÓGICA DE MATCH:
-    // Convertimos el Map de votos a un array de IDs ganadores
     const matches = [];
     const totalUsers = room.users.length;
-
+    
+    // Calcular matches
     if (room.votes) {
-        // room.votes es un Map en Mongoose
         for (const [restId, count] of room.votes) {
-            // Si los votos igualan o superan al número de usuarios, es match
             if (count >= totalUsers && totalUsers > 0) {
                 matches.push(Number(restId));
             }
         }
     }
 
-    // Devolvemos la sala y la lista de matches calculada
-    // Convertimos a objeto plano para poder añadir la propiedad extra 'matches'
-    res.json({ ...room.toObject(), matches });
+    // Calcular si el juego terminó sin éxito
+    // Si todos los usuarios han acabado de votar Y no hay matches encontrados
+    let gameOver = false;
+    if (room.usersDone && room.usersDone.length >= totalUsers && matches.length === 0) {
+        gameOver = true;
+    }
+
+    res.json({ ...room.toObject(), matches, gameOver });
 };
 exports.startGame = async (req, res) => {
     const { code } = req.body;
