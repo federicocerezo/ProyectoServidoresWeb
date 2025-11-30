@@ -16,25 +16,29 @@ exports.getRestaurants = async (req, res) => {
             if (type && type !== 'Any' && type !== 'Todos') {
                 query.type = type;
             }
-            // Filtro de Precio
-            // NOTA: Esto asume que en tu Atlas el precio es un NÚMERO.
-            // Si en Atlas tienes "30€" (texto), este filtro numérico fallará.
+            // Filtro de Precio Numérico
             if (maxPrice && maxPrice !== 'Any') {
                 query.averagePrice = { $lte: parseInt(maxPrice) };
             }
         }
 
-        let mongooseQuery = Restaurant.find(query);
+        // --- CAMBIO CLAVE AQUÍ ---
+        
+        // Ejecutamos la búsqueda SIN límite en la base de datos
+        // (Traemos todos los candidatos posibles para poder mezclarlos bien)
+        const restaurants = await Restaurant.find(query);
 
-        if (limit) {
-            mongooseQuery = mongooseQuery.limit(parseInt(limit));
-        }
-
-        const restaurants = await mongooseQuery;
-
-        // Randomizar orden si es para el juego
+        // Si es para el juego (no favoritos), aplicamos aleatoriedad y límite
         if (!ids) {
+            // A. Barajamos (Shuffle) la lista completa
             restaurants.sort(() => Math.random() - 0.5);
+
+            // B. Si hay límite y tenemos más restaurantes de los pedidos, cortamos la lista
+            if (limit && restaurants.length > parseInt(limit)) {
+                // .splice elimina los elementos sobrantes a partir del índice 'limit'
+                // Dejando solo los 'limit' primeros elementos ya barajados
+                restaurants.splice(parseInt(limit));
+            }
         }
 
         res.json(restaurants);

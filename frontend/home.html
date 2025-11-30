@@ -17,34 +17,53 @@
             
             <div class="card-panel">
                 <h3>🍽️ Crear Sala</h3>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Personaliza tu partida:</p>
                 
-                <label>Tipo de Comida:</label>
+                <label for="filter-type">Tipo de Comida:</label>
                 <select id="filter-type" class="input-field">
                     <option value="Any">Cualquiera</option>
                     <option value="Italiana">Italiana 🍕</option>
                     <option value="Japonesa">Japonesa 🍣</option>
                     <option value="Mexicana">Mexicana 🌮</option>
                     <option value="Americana">Americana 🍔</option>
+                    <option value="Española">Española 🥘</option>
                     <option value="India">India 🍛</option>
+                    <option value="Saludable">Saludable 🥗</option>
+                    <option value="Vegana">Vegana 🥬</option>
+                    <option value="Fusión">Fusión 🍱</option>
                 </select>
                 
-                <label>Rango de Precio:</label>
+                <label for="filter-price">Precio Máximo (por persona):</label>
                 <select id="filter-price" class="input-field">
                     <option value="Any">Cualquiera</option>
-                    <option value="€">Barato (€)</option>
-                    <option value="€€">Medio (€€)</option>
-                    <option value="€€€">Caro (€€€)</option>
+                    <option value="15">Menos de 15€ (Económico)</option>
+                    <option value="25">Menos de 25€ (Normal)</option>
+                    <option value="40">Menos de 40€ (Capricho)</option>
+                    <option value="80">Menos de 80€ (Lujo)</option>
                 </select>
 
-                <button onclick="Home.createRoom(this)" class="btn btn-primary">Crear Nueva Sala</button>
+                <label for="filter-limit">Cantidad de Restaurantes:</label>
+                <select id="filter-limit" class="input-field">
+                    <option value="10">10 (Partida Rápida)</option>
+                    <option value="20" selected>20 (Estándar)</option>
+                    <option value="30">30 (Larga)</option>
+                </select>
+
+                <button onclick="Home.createRoom(this)" class="btn btn-primary" style="margin-top: 15px;">
+                    Crear Nueva Sala
+                </button>
+                
                 <button onclick="Home.createFavoritesRoom(this)" class="btn btn-secondary" style="margin-top:10px; color: var(--primary);">
-                    ⭐ Sala de Mis Favoritos
+                    ⭐ Jugar con Mis Favoritos
                 </button>
             </div>
 
             <div class="card-panel">
-                <h3>🤝 Unirse</h3>
-                <input type="text" id="room-code" placeholder="CÓDIGO DE SALA" class="input-field" style="text-transform:uppercase;">
+                <h3>🤝 Unirse a una Sala</h3>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Introduce el código que te han pasado:</p>
+                
+                <input type="text" id="room-code" placeholder="CÓDIGO DE SALA" class="input-field" style="text-transform:uppercase; letter-spacing: 2px; text-align: center;">
+                
                 <button onclick="Home.joinRoom(this)" class="btn btn-primary">Entrar a Sala</button>
             </div>
         </div>

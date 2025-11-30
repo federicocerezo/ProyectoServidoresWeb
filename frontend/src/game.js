@@ -8,7 +8,7 @@ const API = "http://localhost:5000/api";
 let restaurants = []; 
 let currentIndex = 0;
 let isFlipped = false;
-let userFavorites = new Set(); // Para guardar favoritos localmente
+let userFavorites = new Set(); 
 
 if (!currentUser) window.location.href = "index.html";
 
@@ -16,7 +16,7 @@ document.getElementById("room-code-display").innerText = roomCode;
 if (isHost) document.getElementById("host-controls").classList.remove("hidden");
 else document.getElementById("waiting-msg").classList.remove("hidden");
 
-// Cargar favoritos del usuario al iniciar para pintar las estrellas
+// Cargar favoritos del usuario
 async function loadFavorites() {
     const token = localStorage.getItem("token");
     try {
@@ -25,47 +25,47 @@ async function loadFavorites() {
         });
         const data = await res.json();
         if(data.favorites) {
-            userFavorites = new Set(data.favorites.map(String)); // Guardamos como strings
+            userFavorites = new Set(data.favorites.map(String)); 
         }
     } catch(e) { console.error("Error cargando favoritos", e); }
 }
 loadFavorites();
 
-// POLLING
+// POLLING (Comprobar estado de la sala cada 3s)
 const pollInterval = setInterval(async () => {
-    const res = await fetch(`${API}/room/${roomCode}`);
-    if(res.status === 404) { 
-        alert("Sala cerrada"); 
-        clearInterval(pollInterval);
-        window.location.href="home.html"; 
-        return; 
-    }
-    
-    const data = await res.json();
-    
-    // 1. Actualizar lista participantes
-    document.getElementById("participants-list").innerHTML = data.users.map(u => `<li>${u}</li>`).join("");
+    try {
+        const res = await fetch(`${API}/room/${roomCode}`);
+        if(res.status === 404) { 
+            alert("Sala cerrada"); 
+            clearInterval(pollInterval);
+            window.location.href="home.html"; 
+            return; 
+        }
+        
+        const data = await res.json();
+        
+        // 1. Actualizar lista participantes
+        document.getElementById("participants-list").innerHTML = data.users.map(u => `<li>${u}</li>`).join("");
 
-    // 2. CORRECCIÓN BUG RESET: Solo llamar startGameLogic si el lobby aún es visible
-    // Usamos classList.contains('hidden') para verificar si ya estamos jugando
-    const isLobbyHidden = document.getElementById("view-lobby").classList.contains("hidden");
-    
-    if (data.status === 'voting' && !isLobbyHidden) {
-        // CORRECCIÓN BUG FILTROS: Pasamos 'data' entero, no 'data.filters'
-        startGameLogic(data);
-    }
+        // 2. Iniciar Juego si cambia el estado
+        const isLobbyHidden = document.getElementById("view-lobby").classList.contains("hidden");
+        
+        if (data.status === 'voting' && !isLobbyHidden) {
+            startGameLogic(data);
+        }
 
-    // 3. Detectar Match
-    if (data.matches && data.matches.length > 0) {
-        showMatch(data.matches[0]);
-        clearInterval(pollInterval); // Parar polling
-    }
+        // 3. Detectar Match
+        if (data.matches && data.matches.length > 0) {
+            showMatch(data.matches[0]);
+            clearInterval(pollInterval); 
+        }
 
-    // 4. NUEVO: Detectar Game Over (Sin matches)
-    if (data.gameOver) {
-        showNoMatch();
-        clearInterval(pollInterval);
-    }
+        // 4. Game Over
+        if (data.gameOver) {
+            showNoMatch();
+            clearInterval(pollInterval);
+        }
+    } catch (e) { console.error("Error polling:", e); }
 
 }, 3000);
 
@@ -88,7 +88,6 @@ const Game = {
         nextCard();
     },
 
-    // CORRECCIÓN BUG VISTA PLANO: toggleFlip ahora solo cambia clase CSS, no recarga
     toggleFlip: () => {
         isFlipped = !isFlipped;
         document.getElementById("card-inner").classList.toggle("flipped", isFlipped);
@@ -99,11 +98,9 @@ const Game = {
         const token = localStorage.getItem("token");
         const btn = document.getElementById("btn-fav");
         
-        // Feedback visual inmediato
         const isNowFav = !btn.classList.contains("active");
         btn.classList.toggle("active", isNowFav);
 
-        // Actualizar Set local para persistencia
         if(isNowFav) userFavorites.add(String(rest.id));
         else userFavorites.delete(String(rest.id));
 
@@ -120,19 +117,31 @@ const Game = {
     }
 };
 
+// --- LÓGICA PRINCIPAL MODIFICADA ---
 async function startGameLogic(data) {
     document.getElementById("view-lobby").classList.add("hidden");
     document.getElementById("view-swipe").classList.remove("hidden");
 
     let url = `${API}/restaurants?`;
 
-    // Lógica de filtros corregida
+    // CASO A: Sala de Favoritos (lista de IDs)
     if (data.allowedIds && data.allowedIds.length > 0) {
         url += `ids=${data.allowedIds.join(',')}`;
     } 
+    // CASO B: Sala Normal con Filtros
     else if (data.filters) {
-        if(data.filters.type !== 'Any') url += `type=${data.filters.type}&`;
-        if(data.filters.price !== 'Any') url += `price=${data.filters.price}&`;
+        // Filtro Tipo
+        if(data.filters.type && data.filters.type !== 'Any') {
+            url += `type=${data.filters.type}&`;
+        }
+        // MODIFICADO: Usamos 'maxPrice' en lugar de 'price'
+        if(data.filters.maxPrice && data.filters.maxPrice !== 'Any') {
+            url += `maxPrice=${data.filters.maxPrice}&`;
+        }
+        // NUEVO: Añadimos el límite de tarjetas
+        if(data.filters.limit) {
+            url += `limit=${data.filters.limit}&`;
+        }
     }
 
     try {
@@ -140,7 +149,7 @@ async function startGameLogic(data) {
         restaurants = await res.json();
         
         if (restaurants.length === 0) {
-            alert("No hay restaurantes que coincidan con los filtros.");
+            alert("No hay restaurantes que coincidan con los filtros. Intenta ser menos estricto.");
             window.location.href = "home.html";
             return;
         }
@@ -154,11 +163,9 @@ function renderCard() {
 
     const r = restaurants[currentIndex];
 
-    // Resetear estado flip
     isFlipped = false;
     document.getElementById("card-inner").classList.remove("flipped");
 
-    // CORRECCIÓN BUG FAVORITO: Verificar si ya es favorito
     const btnFav = document.getElementById("btn-fav");
     if (userFavorites.has(String(r.id))) {
         btnFav.classList.add("active");
@@ -168,13 +175,16 @@ function renderCard() {
 
     document.getElementById("card-image").src = r.image;
     document.getElementById("card-name").innerText = r.name;
+    
+    // MODIFICADO: Mostrar averagePrice + €
     document.getElementById("card-tags").innerHTML = `
         <span class="tag ${r.type}">${r.type}</span>
-        <span class="tag">${r.price}</span>
+        <span class="tag">${r.averagePrice}€</span>
         <span class="tag">⭐ ${r.rating}</span>
     `;
 
-    const query = encodeURIComponent(r.name + " restaurant");
+    // MODIFICADO: Usar dirección real para el mapa si existe
+    const query = encodeURIComponent(r.name + " " + (r.address || "Madrid"));
     document.getElementById("card-map-frame").src =
         `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 }
@@ -184,7 +194,6 @@ async function nextCard() {
     if(currentIndex < restaurants.length) {
         renderCard();
     } else {
-        // FIN DE VOTOS
         document.getElementById("view-swipe").innerHTML = `
             <div class="card-panel">
                 <h2>✅ Votación completada</h2>
@@ -193,7 +202,6 @@ async function nextCard() {
             </div>
         `;
         
-        // Avisar al backend de que este usuario terminó
         await fetch(`${API}/finish-voting`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: roomCode, username: currentUser })
@@ -202,18 +210,20 @@ async function nextCard() {
 }
 
 function showMatch(matchId) {
-    const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", price: "" };
+    // Buscar match en la lista cargada o crear objeto dummy si no está
+    const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", averagePrice: "?" };
     
     document.getElementById("view-swipe").classList.add("hidden");
     document.getElementById("view-match").classList.remove("hidden");
     
+    // MODIFICADO: Mostrar precio correctamente
     document.getElementById("match-result").innerHTML = `
         <img src="${match.image}" class="match-img-small">
         <h2 style="margin: 10px 0;">${match.name}</h2>
-        <p style="color: #666;">${match.type} • ${match.price}</p>
+        <p style="color: #666;">${match.type} • ${match.averagePrice}€</p>
+        <p><i>${match.address || ""}</i></p>
     `;
 
-    // Guardar match en historial solo si soy parte de la sala
     fetch(`${API}/auth/update`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: currentUser, historyItem: { name: match.name } })
