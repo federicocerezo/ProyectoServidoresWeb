@@ -10,7 +10,7 @@ const restaurantRoutes = require("./routes/restaurantRoutes");
 const { seedRestaurants } = require("./controllers/restaurantController");
 
 connectDB();
-seedRestaurants(); // Cargar datos si no existen al arrancar
+
 
 const app = express();
 app.use(cors());
