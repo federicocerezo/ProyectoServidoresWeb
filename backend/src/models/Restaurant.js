@@ -15,7 +15,7 @@ const restaurantSchema = new mongoose.Schema({
     required: true 
   },
   // CAMBIO CLAVE: averagePrice es un número para poder filtrar (ej: 30)
-  averagePrice: { 
+  price: { 
     type: Number, 
     required: true 
   },

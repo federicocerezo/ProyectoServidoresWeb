@@ -1,5 +1,6 @@
 const API_ACC = "http://localhost:5000/api";
-const token = localStorage.getItem("token");
+// CAMBIO: Leer de sessionStorage
+const token = sessionStorage.getItem("token");
 
 if(!token) window.location.href="index.html";
 
@@ -14,7 +15,6 @@ async function loadProfile() {
         const favContainer = document.getElementById("favorites-list");
         
         if (user.favorites && user.favorites.length > 0) {
-            // PEDIR DETALLES DE FAVORITOS AL BACKEND
             const resRest = await fetch(`${API_ACC}/restaurants?ids=${user.favorites.join(',')}`);
             const myFavs = await resRest.json();
             

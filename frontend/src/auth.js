@@ -12,9 +12,10 @@ const Auth = {
         const data = await res.json();
 
         if (data.success) {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", data.username);
-            localStorage.setItem("userData", JSON.stringify(data)); 
+            // CAMBIO: Usar sessionStorage para aislar la pestaña
+            sessionStorage.setItem("token", data.token);
+            sessionStorage.setItem("user", data.username);
+            sessionStorage.setItem("userData", JSON.stringify(data)); 
             window.location.href = "home.html";
         } else {
             alert(data.error);
@@ -34,14 +35,12 @@ const Auth = {
         
         const data = await res.json();
 
-        // AQUÍ ESTÁ EL CAMBIO CLAVE
         if (data.success) {
-            // Guardamos sesión igual que en el login
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", data.username);
-            localStorage.setItem("userData", JSON.stringify(data)); 
+            // CAMBIO: Usar sessionStorage
+            sessionStorage.setItem("token", data.token);
+            sessionStorage.setItem("user", data.username);
+            sessionStorage.setItem("userData", JSON.stringify(data)); 
             
-            // Redirigimos directamente
             window.location.href = "home.html";
         } else {
             alert(data.error || "Error al registrar");
@@ -49,7 +48,8 @@ const Auth = {
     },
 
     logout: () => {
-        localStorage.clear();
+        // CAMBIO: Limpiar sessionStorage
+        sessionStorage.clear();
         window.location.href = "index.html";
     }
 };

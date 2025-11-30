@@ -6,12 +6,15 @@ exports.createRoom = async (req, res) => {
     
     // Recibimos filtros del body (si existen)
     const filters = req.body.filters || { type: 'Any', price: 'Any' };
+    
+    // CORRECCIÓN: Asegurarnos de capturar los IDs si vienen
     const allowedIds = req.body.allowedIds || [];
     
     const newRoom = new Room({
         code,
         users: [req.body.username],
-        filters: filters // Guardamos los filtros
+        filters: filters,
+        allowedIds: allowedIds // <--- ¡AQUÍ FALTABA ESTA LÍNEA!
     });
 
     await newRoom.save();

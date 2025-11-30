@@ -1,8 +1,10 @@
 const params = new URLSearchParams(window.location.search);
 const roomCode = params.get("code");
 const isHost = params.get("isHost") === "true";
-const currentUser = localStorage.getItem("user");
 const API = "http://localhost:5000/api";
+
+// CAMBIO: Leer usuario de sessionStorage
+const currentUser = sessionStorage.getItem("user");
 
 // Variables globales
 let restaurants = []; 
@@ -18,7 +20,8 @@ else document.getElementById("waiting-msg").classList.remove("hidden");
 
 // Cargar favoritos del usuario
 async function loadFavorites() {
-    const token = localStorage.getItem("token");
+    // CAMBIO: Leer token de sessionStorage
+    const token = sessionStorage.getItem("token");
     try {
         const res = await fetch(`${API}/auth/profile`, {
             headers: { "Authorization": `Bearer ${token}` }
@@ -31,7 +34,7 @@ async function loadFavorites() {
 }
 loadFavorites();
 
-// POLLING (Comprobar estado de la sala cada 3s)
+// ... (El bloque de POLLING se mantiene igual, omitido por brevedad) ...
 const pollInterval = setInterval(async () => {
     try {
         const res = await fetch(`${API}/room/${roomCode}`);
@@ -43,30 +46,20 @@ const pollInterval = setInterval(async () => {
         }
         
         const data = await res.json();
-        
-        // 1. Actualizar lista participantes
         document.getElementById("participants-list").innerHTML = data.users.map(u => `<li>${u}</li>`).join("");
-
-        // 2. Iniciar Juego si cambia el estado
         const isLobbyHidden = document.getElementById("view-lobby").classList.contains("hidden");
-        
         if (data.status === 'voting' && !isLobbyHidden) {
             startGameLogic(data);
         }
-
-        // 3. Detectar Match
         if (data.matches && data.matches.length > 0) {
             showMatch(data.matches[0]);
             clearInterval(pollInterval); 
         }
-
-        // 4. Game Over
         if (data.gameOver) {
             showNoMatch();
             clearInterval(pollInterval);
         }
     } catch (e) { console.error("Error polling:", e); }
-
 }, 3000);
 
 const Game = {
@@ -95,7 +88,8 @@ const Game = {
 
     toggleFavorite: async () => {
         const rest = restaurants[currentIndex];
-        const token = localStorage.getItem("token");
+        // CAMBIO: Leer token de sessionStorage
+        const token = sessionStorage.getItem("token");
         const btn = document.getElementById("btn-fav");
         
         const isNowFav = !btn.classList.contains("active");
@@ -114,31 +108,45 @@ const Game = {
                 favoriteId: rest.id.toString() 
             })
         });
+    },
+
+    finishGame: async () => {
+        // Solo el anfitrión borra la sala para evitar que se cierre 
+        // a los demás si un invitado sale primero.
+        if (isHost) {
+            try {
+                console.log("🧹 Borrando sala...");
+                await fetch(`${API}/delete-room`, {
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: roomCode })
+                });
+            } catch(e) { 
+                console.error("Error eliminando la sala", e); 
+            }
+        }
+        // Redirigir al inicio para todos
+        window.location.href = "home.html";
     }
 };
 
-// --- LÓGICA PRINCIPAL MODIFICADA ---
+// ... (Resto de funciones: startGameLogic, renderCard, nextCard, showMatch, showNoMatch se mantienen igual) ...
 async function startGameLogic(data) {
     document.getElementById("view-lobby").classList.add("hidden");
     document.getElementById("view-swipe").classList.remove("hidden");
 
     let url = `${API}/restaurants?`;
 
-    // CASO A: Sala de Favoritos (lista de IDs)
     if (data.allowedIds && data.allowedIds.length > 0) {
         url += `ids=${data.allowedIds.join(',')}`;
     } 
-    // CASO B: Sala Normal con Filtros
     else if (data.filters) {
-        // Filtro Tipo
         if(data.filters.type && data.filters.type !== 'Any') {
             url += `type=${data.filters.type}&`;
         }
-        // MODIFICADO: Usamos 'maxPrice' en lugar de 'price'
         if(data.filters.maxPrice && data.filters.maxPrice !== 'Any') {
             url += `maxPrice=${data.filters.maxPrice}&`;
         }
-        // NUEVO: Añadimos el límite de tarjetas
         if(data.filters.limit) {
             url += `limit=${data.filters.limit}&`;
         }
@@ -176,14 +184,12 @@ function renderCard() {
     document.getElementById("card-image").src = r.image;
     document.getElementById("card-name").innerText = r.name;
     
-    // MODIFICADO: Mostrar averagePrice + €
     document.getElementById("card-tags").innerHTML = `
         <span class="tag ${r.type}">${r.type}</span>
-        <span class="tag">${r.averagePrice}€</span>
+        <span class="tag">${r.price}€</span>
         <span class="tag">⭐ ${r.rating}</span>
     `;
 
-    // MODIFICADO: Usar dirección real para el mapa si existe
     const query = encodeURIComponent(r.name + " " + (r.address || "Madrid"));
     document.getElementById("card-map-frame").src =
         `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
@@ -194,7 +200,6 @@ async function nextCard() {
     if(currentIndex < restaurants.length) {
         renderCard();
     } else {
-        // Mostrar mensaje de espera
         document.getElementById("view-swipe").innerHTML = `
             <div class="card-panel">
                 <h2>✅ Votación completada</h2>
@@ -203,14 +208,12 @@ async function nextCard() {
             </div>
         `;
         
-        // Avisar al servidor
         try {
             await fetch(`${API}/finish-voting`, {
                 method: "POST", 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: roomCode, username: currentUser })
             });
-            // El polling (setInterval) se encargará de detectar cuando gameOver sea true
         } catch (e) {
             console.error("Error al finalizar votación:", e);
         }
@@ -218,13 +221,11 @@ async function nextCard() {
 }
 
 function showMatch(matchId) {
-    // Buscar match en la lista cargada o crear objeto dummy si no está
     const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", averagePrice: "?" };
     
     document.getElementById("view-swipe").classList.add("hidden");
     document.getElementById("view-match").classList.remove("hidden");
     
-    // MODIFICADO: Mostrar precio correctamente
     document.getElementById("match-result").innerHTML = `
         <img src="${match.image}" class="match-img-small">
         <h2 style="margin: 10px 0;">${match.name}</h2>
