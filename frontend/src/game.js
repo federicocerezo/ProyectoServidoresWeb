@@ -194,6 +194,7 @@ async function nextCard() {
     if(currentIndex < restaurants.length) {
         renderCard();
     } else {
+        // Mostrar mensaje de espera
         document.getElementById("view-swipe").innerHTML = `
             <div class="card-panel">
                 <h2>✅ Votación completada</h2>
@@ -202,10 +203,17 @@ async function nextCard() {
             </div>
         `;
         
-        await fetch(`${API}/finish-voting`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: roomCode, username: currentUser })
-        });
+        // Avisar al servidor
+        try {
+            await fetch(`${API}/finish-voting`, {
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: roomCode, username: currentUser })
+            });
+            // El polling (setInterval) se encargará de detectar cuando gameOver sea true
+        } catch (e) {
+            console.error("Error al finalizar votación:", e);
+        }
     }
 }
 
