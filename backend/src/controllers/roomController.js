@@ -115,51 +115,45 @@ exports.getRoom = async (req, res) => {
 exports.startGame = async (req, res) => {
     const { code } = req.body;
     
-    // 1. Buscamos la sala primero
     const room = await Room.findOne({ code });
     if (!room) return res.status(404).json({ error: "Sala no existe" });
 
-    // 2. Si es una sala normal (no tiene IDs predefinidos), generamos la lista ahora
     if (room.allowedIds.length === 0) {
-        // Recuperamos los filtros guardados
         const { type, price, limit } = room.filters || {}; 
         
         let query = {};
-        // Filtro Tipo
         if (type && type !== 'Any' && type !== 'Todos') {
             query.type = type;
         }
-        // Filtro Precio (guardado como 'price' en room, pero es averagePrice en Restaurant)
-        if (price && price !== 'Any') {
-            query.averagePrice = { $lte: parseInt(price) };
-        }
 
-        // A. Buscamos TODOS los candidatos
+        // 1. Buscamos por tipo
         let candidates = await Restaurant.find(query);
 
-        // B. Barajamos (Shuffle) AQUÍ, una sola vez para todos
+        // 2. Filtramos por precio en JS (manejando el "15€")
+        if (price && price !== 'Any') {
+            const max = parseInt(price);
+            candidates = candidates.filter(r => parseInt(r.price) <= max);
+        }
+
+        // 3. Barajamos
         candidates.sort(() => Math.random() - 0.5);
 
-        // C. Recortamos según el límite elegido
+        // 4. Aplicamos límite
         const limitVal = parseInt(limit) || 20;
         if (candidates.length > limitVal) {
             candidates = candidates.slice(0, limitVal);
         }
 
-        // D. Guardamos los IDs resultantes en la sala
         room.allowedIds = candidates.map(r => r.id);
     } else {
-        // Si es sala de Favoritos, también los barajamos para que el orden sea común
         room.allowedIds.sort(() => Math.random() - 0.5);
     }
 
-    // 3. Cambiamos estado y guardamos
     room.status = 'voting';
     await room.save();
 
     res.json({ success: true, room });
 };
-
 // 3. ELIMINAR SALA
 exports.deleteRoom = async (req, res) => {
     const { code } = req.body;

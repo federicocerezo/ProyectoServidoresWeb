@@ -186,7 +186,7 @@ function renderCard() {
     
     document.getElementById("card-tags").innerHTML = `
         <span class="tag ${r.type}">${r.type}</span>
-        <span class="tag">${r.price}€</span>
+        <span class="tag">${r.price}</span>
         <span class="tag">⭐ ${r.rating}</span>
     `;
 
