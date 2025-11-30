@@ -5,7 +5,12 @@ const connectDB = require("./database");
 const roomRoutes = require("./routes/roomRoutes");
 const authRoutes = require("./routes/authRoutes");
 
+// NUEVO: Importamos rutas y controlador de restaurantes
+const restaurantRoutes = require("./routes/restaurantRoutes");
+const { seedRestaurants } = require("./controllers/restaurantController");
+
 connectDB();
+seedRestaurants(); // Cargar datos si no existen al arrancar
 
 const app = express();
 app.use(cors());
@@ -13,6 +18,7 @@ app.use(express.json());
 
 app.use("/api", roomRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/restaurants", restaurantRoutes); // NUEVO: Registrar ruta
 
 // --- Swagger ---
 const setupSwagger = require('./swagger');
