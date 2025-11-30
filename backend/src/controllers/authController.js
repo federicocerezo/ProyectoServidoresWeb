@@ -1,19 +1,34 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt"); // Necesario
+const bcrypt = require("bcrypt");
 
 const SECRET = "secreto_super_seguro"; 
 
 exports.register = async (req, res) => {
     try {
         const { username, password } = req.body;
-        // HASH PASSWORD
+        
+        // 1. Encriptar contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
         
+        // 2. Crear usuario
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
-        res.json({ success: true });
+
+        // 3. NUEVO: Generar Token inmediatamente (Auto-login)
+        const token = jwt.sign({ id: newUser._id, username: newUser.username }, SECRET);
+
+        // 4. Devolver éxito + Token + Datos
+        res.json({ 
+            success: true, 
+            token, 
+            username: newUser.username, 
+            favorites: newUser.favorites || [], 
+            history: newUser.history || []
+        });
+
     } catch (err) {
+        console.error(err);
         res.status(400).json({ error: "El usuario ya existe o datos inválidos" });
     }
 };
@@ -24,7 +39,6 @@ exports.login = async (req, res) => {
 
     if (!user) return res.status(401).json({ error: "Usuario no encontrado" });
 
-    // COMPARAR HASH
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: "Contraseña incorrecta" });
 
@@ -33,7 +47,6 @@ exports.login = async (req, res) => {
     res.json({ success: true, token, username: user.username, favorites: user.favorites, history: user.history });
 };
 
-// ... (getProfile y updateUser se mantienen igual)
 exports.getProfile = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if(!token) return res.status(401).json({error: "No token"});
@@ -50,6 +63,7 @@ exports.updateUser = async (req, res) => {
     if(historyItem) user.history.push(historyItem);
     if(favoriteId) {
         if(!user.favorites.includes(favoriteId)) user.favorites.push(favoriteId);
+        else user.favorites = user.favorites.filter(id => id !== favoriteId); 
     }
     await user.save();
     res.json({ success: true });

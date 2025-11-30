@@ -14,7 +14,7 @@ const Auth = {
         if (data.success) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", data.username);
-            localStorage.setItem("userData", JSON.stringify(data)); // Guardamos historial
+            localStorage.setItem("userData", JSON.stringify(data)); 
             window.location.href = "home.html";
         } else {
             alert(data.error);
@@ -25,15 +25,26 @@ const Auth = {
         const user = document.getElementById("reg-user").value;
         const pass = document.getElementById("reg-pass").value;
         
+        if (!user || !pass) return alert("Rellena todos los campos");
+
         const res = await fetch(`${API_URL}/register`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: user, password: pass })
         });
-        if (res.ok) {
-            alert("Registrado! Ahora inicia sesión.");
-            showForm('login');
+        
+        const data = await res.json();
+
+        // AQUÍ ESTÁ EL CAMBIO CLAVE
+        if (data.success) {
+            // Guardamos sesión igual que en el login
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", data.username);
+            localStorage.setItem("userData", JSON.stringify(data)); 
+            
+            // Redirigimos directamente
+            window.location.href = "home.html";
         } else {
-            alert("Error al registrar");
+            alert(data.error || "Error al registrar");
         }
     },
 
@@ -52,15 +63,11 @@ function showForm(type) {
     if(type === 'login') {
         formLogin.classList.remove('hidden');
         formReg.classList.add('hidden');
-        
-        // Activar estilo rojo
         btnLogin.classList.add('active');
         btnReg.classList.remove('active');
     } else {
         formLogin.classList.add('hidden');
         formReg.classList.remove('hidden');
-        
-        // Activar estilo rojo
         btnLogin.classList.remove('active');
         btnReg.classList.add('active');
     }
