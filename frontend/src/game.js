@@ -221,7 +221,7 @@ async function nextCard() {
 }
 
 function showMatch(matchId) {
-    const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", averagePrice: "?" };
+    const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", price: "" };
     
     document.getElementById("view-swipe").classList.add("hidden");
     document.getElementById("view-match").classList.remove("hidden");
