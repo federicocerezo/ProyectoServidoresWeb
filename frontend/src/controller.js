@@ -24,7 +24,10 @@ const Controller = {
 
         const res = await fetch(`${API_URL}/create-room`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json" ,
+                "Authorization": `Bearer ${token}` 
+            },
             body: JSON.stringify({ 
                 username: Model.user,
                 filters: { type, price } // Enviamos filtros
@@ -51,7 +54,10 @@ const Controller = {
         
         const res = await fetch(`${API_URL}/join-room`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` 
+            },
             body: JSON.stringify({ username: user, code })
         });
         const data = await res.json();
@@ -70,7 +76,10 @@ const Controller = {
         // Primero, avisamos al backend
         await fetch(`${API_URL}/start-game`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` 
+            },
             body: JSON.stringify({ code: Model.roomCode })
         });
 
@@ -116,7 +125,10 @@ const Controller = {
         if (liked) {
             await fetch(`${API_URL}/vote`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                 },
                 body: JSON.stringify({
                     code: Model.roomCode,
                     restaurantId: rest.id
@@ -189,7 +201,10 @@ const Controller = {
         if (confirm("¿Finalizar y borrar sala?")) {
             await fetch(`${API_URL}/delete-room`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}` 
+                },
                 body: JSON.stringify({ code: Model.roomCode })
             });
             // El polling detectará el 404 y nos mandará al home

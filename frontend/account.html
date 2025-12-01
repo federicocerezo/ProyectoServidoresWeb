@@ -30,59 +30,6 @@
         </div>
     </div>
     
-    <script src="src/model.js"></script>
     <script src="src/auth.js"></script>
-    
-    <script>
-        // Sobrescribimos la función de pintado para usar las nuevas clases CSS
-        const API_ACC = "http://localhost:5000/api";
-        const token = sessionStorage.getItem("token");
-        const currentUser = sessionStorage.getItem("user");
-
-        if(!token) window.location.href="index.html";
-
-        window.removeFavorite = async (id) => {
-            if(!confirm("¿Borrar?")) return;
-            try {
-                const res = await fetch(`${API_ACC}/auth/update`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ username: currentUser, favoriteId: id.toString() })
-                });
-                const data = await res.json();
-                if (data.success) loadProfile();
-            } catch (e) { console.error(e); }
-        };
-
-        async function loadProfile() {
-            try {
-                const res = await fetch(`${API_ACC}/auth/profile`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                const user = await res.json();
-                document.getElementById("acc-username").innerText = user.username;
-                const favContainer = document.getElementById("favorites-list");
-                
-                if (user.favorites && user.favorites.length > 0) {
-                    const resRest = await fetch(`${API_ACC}/restaurants?ids=${user.favorites.join(',')}`);
-                    const myFavs = await resRest.json();
-                    
-                    favContainer.innerHTML = myFavs.map(r => `
-                        <div class="fav-item">
-                            <img src="${r.image}" class="fav-img">
-                            <div style="flex: 1;">
-                                <b style="font-size: 1rem;">${r.name}</b>
-                                <div style="font-size: 0.8rem; color: #666;">${r.type} • ${r.price}</div>
-                            </div>
-                            <button onclick="window.removeFavorite('${r.id}')" style="background:none; border:none; cursor:pointer;">❌</button>
-                        </div>
-                    `).join("");
-                } else {
-                    favContainer.innerHTML = "<p class='text-muted'>Aún no tienes favoritos.</p>";
-                }
-            } catch (e) { console.error(e); }
-        }
-        loadProfile();
-    </script>
 </body>
 </html>

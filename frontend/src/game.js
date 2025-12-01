@@ -243,7 +243,10 @@ async function nextCard() {
         try {
             await fetch(`${API}/finish-voting`, {
                 method: "POST", 
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                },
                 body: JSON.stringify({ code: roomCode, username: currentUser })
             });
         } catch (e) {
@@ -284,7 +287,11 @@ async function showMatch(matchId) {
 
     // Guardar en historial
     fetch(`${API}/auth/update`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST", 
+        headers: { 
+            "Content-Type": "application/json" ,
+            "Authorization": `Bearer ${token}` 
+        },
         body: JSON.stringify({ username: currentUser, historyItem: { name: match.name } })
     });
 }

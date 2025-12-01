@@ -82,7 +82,9 @@ const Home = {
 
         try {
             const resUser = await fetch(`${API_ROOM}/auth/profile`, {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { 
+                    "Authorization": `Bearer ${token}` 
+                }
             });
             const profile = await resUser.json();
 
@@ -96,7 +98,10 @@ const Home = {
 
             const res = await fetch(`${API_ROOM}/create-room`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json" ,
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify({ 
                     username: user, 
                     allowedIds: profile.favorites.map(Number) 
@@ -141,7 +146,10 @@ const Home = {
         try {
             const res = await fetch(`${API_ROOM}/join-room`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json" ,
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify({ username: user, code })
             });
 

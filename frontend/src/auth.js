@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:5000/api/auth";
+const API_BASE = "http://localhost:5000/api"; // Base para otras rutas como /restaurants
 
 const Auth = {
     login: async () => {
@@ -12,7 +13,6 @@ const Auth = {
         const data = await res.json();
 
         if (data.success) {
-            // CAMBIO: Usar sessionStorage para aislar la pestaña
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("user", data.username);
             sessionStorage.setItem("userData", JSON.stringify(data)); 
@@ -36,7 +36,6 @@ const Auth = {
         const data = await res.json();
 
         if (data.success) {
-            // CAMBIO: Usar sessionStorage
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("user", data.username);
             sessionStorage.setItem("userData", JSON.stringify(data)); 
@@ -48,9 +47,72 @@ const Auth = {
     },
 
     logout: () => {
-        // CAMBIO: Limpiar sessionStorage
         sessionStorage.clear();
         window.location.href = "index.html";
+    },
+
+    // --- Funciones del Perfil (Movidas desde account.html) ---
+
+    loadProfile: async () => {
+        const token = sessionStorage.getItem("token");
+        if(!token) {
+            window.location.href = "index.html";
+            return;
+        }
+
+        try {
+            // 1. Obtener datos del usuario
+            const res = await fetch(`${API_URL}/profile`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const user = await res.json();
+            
+            // Pintar nombre de usuario
+            const usernameDisplay = document.getElementById("acc-username");
+            if (usernameDisplay) usernameDisplay.innerText = user.username;
+            
+            const favContainer = document.getElementById("favorites-list");
+            
+            // 2. Obtener y pintar favoritos
+            if (favContainer) {
+                if (user.favorites && user.favorites.length > 0) {
+                    const resRest = await fetch(`${API_BASE}/restaurants?ids=${user.favorites.join(',')}`);
+                    const myFavs = await resRest.json();
+                    
+                    favContainer.innerHTML = myFavs.map(r => `
+                        <div class="fav-item">
+                            <img src="${r.image}" class="fav-img">
+                            <div style="flex: 1;">
+                                <b style="font-size: 1rem;">${r.name}</b>
+                                <div style="font-size: 0.8rem; color: #666;">${r.type} • ${r.price}</div>
+                            </div>
+                            <button onclick="Auth.removeFavorite('${r.id}')" style="background:none; border:none; cursor:pointer;">❌</button>
+                        </div>
+                    `).join("");
+                } else {
+                    favContainer.innerHTML = "<p class='text-muted'>Aún no tienes favoritos.</p>";
+                }
+            }
+        } catch (e) { console.error("Error cargando perfil:", e); }
+    },
+
+    removeFavorite: async (id) => {
+        if(!confirm("¿Borrar de favoritos?")) return;
+        
+        const token = sessionStorage.getItem("token");
+        const currentUser = sessionStorage.getItem("user");
+
+        try {
+            const res = await fetch(`${API_URL}/update`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ username: currentUser, favoriteId: id.toString() })
+            });
+            const data = await res.json();
+            if (data.success) {
+                Auth.loadProfile(); // Recargar la lista
+            }
+        } catch (e) { console.error(e); }
     }
 };
 
@@ -72,3 +134,10 @@ function showForm(type) {
         btnReg.classList.add('active');
     }
 }
+
+// Inicialización automática si estamos en la página de perfil
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("favorites-list")) {
+        Auth.loadProfile();
+    }
+});
