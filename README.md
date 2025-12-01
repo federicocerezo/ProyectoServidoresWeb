@@ -24,5 +24,6 @@ Funcionalidad:
 2. Clonar repositorio
 3. Configurar archivo `.env` en `backend/`
 4. Ejecutar:
-   docker-compose up --build
+```bash
+docker-compose up --build
 
