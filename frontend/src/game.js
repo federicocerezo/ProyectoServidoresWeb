@@ -64,8 +64,15 @@ const pollInterval = setInterval(async () => {
 
 const Game = {
     startVoting: async () => {
+        // Recuperamos el token
+        const token = sessionStorage.getItem("token");
+        
         await fetch(`${API}/start-game`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
+            method: "POST", 
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // <--- IMPORTANTE: Enviar el Token
+            },
             body: JSON.stringify({ code: roomCode })
         });
     },
@@ -74,13 +81,17 @@ const Game = {
 
     vote: async (liked) => {
         const rest = restaurants[currentIndex];
-        
+        const token = sessionStorage.getItem("token");
+
         if (liked) {
             try {
                 // 1. Esperamos la respuesta del servidor
                 const res = await fetch(`${API}/vote`, {
                     method: "POST", 
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json" ,
+                        "Authorization": `Bearer ${token}`
+                    },
                     body: JSON.stringify({ code: roomCode, restaurantId: rest.id })
                 });
                 
@@ -130,21 +141,23 @@ const Game = {
     },
 
     finishGame: async () => {
-        // Solo el anfitrión borra la sala para evitar que se cierre 
-        // a los demás si un invitado sale primero.
+        const token = sessionStorage.getItem("token"); // <--- Recuperar token
+
         if (isHost) {
             try {
                 console.log("🧹 Borrando sala...");
                 await fetch(`${API}/delete-room`, {
                     method: "POST", 
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` // <--- Añadir header
+                    },
                     body: JSON.stringify({ code: roomCode })
                 });
             } catch(e) { 
                 console.error("Error eliminando la sala", e); 
             }
         }
-        // Redirigir al inicio para todos
         window.location.href = "home.html";
     }
 };

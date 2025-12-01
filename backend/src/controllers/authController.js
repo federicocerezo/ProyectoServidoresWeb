@@ -2,23 +2,18 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-const SECRET = "secreto_super_seguro"; 
+// CORRECCIÓN: Usar variable de entorno
+const SECRET = process.env.JWT_SECRET || "secreto_inseguro_por_defecto";
 
 exports.register = async (req, res) => {
     try {
         const { username, password } = req.body;
-        
-        // 1. Encriptar contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // 2. Crear usuario
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
 
-        // 3. NUEVO: Generar Token inmediatamente (Auto-login)
         const token = jwt.sign({ id: newUser._id, username: newUser.username }, SECRET);
 
-        // 4. Devolver éxito + Token + Datos
         res.json({ 
             success: true, 
             token, 
@@ -48,18 +43,31 @@ exports.login = async (req, res) => {
 };
 
 exports.getProfile = async (req, res) => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if(!token) return res.status(401).json({error: "No token"});
+    // YA NO verificamos el token aquí manualmente.
+    // El middleware 'verifyToken' ya se aseguró de que req.user existe.
     try {
-        const decoded = jwt.verify(token, SECRET);
-        const user = await User.findById(decoded.id);
-        res.json(user);
-    } catch(e) { res.status(401).json({error: "Token inválido"}); }
+        const user = await User.findById(req.user.id); // Usamos el ID del token decodificado
+        if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+        
+        // No devolvemos la contraseña
+        const { password, ...userData } = user.toObject();
+        res.json(userData);
+    } catch(e) { 
+        res.status(500).json({error: "Error del servidor"}); 
+    }
 };
 
 exports.updateUser = async (req, res) => {
+    // Usamos el username del token para más seguridad, o confiamos en el body si es admin
+    // Por ahora mantenemos tu lógica original pero protegida por middleware
     const { username, historyItem, favoriteId } = req.body;
+    
+    // Validación extra opcional: asegurar que uno solo edita su propio usuario
+    // if (req.user.username !== username) return res.status(403).json({error: "No autorizado"});
+
     const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: "Usuario no existe" });
+
     if(historyItem) user.history.push(historyItem);
     if(favoriteId) {
         if(!user.favorites.includes(favoriteId)) user.favorites.push(favoriteId);

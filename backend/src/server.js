@@ -1,13 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./database");
+const connectDB = require("./database"); //ESTO HACE ALGO????
 const roomRoutes = require("./routes/roomRoutes");
 const authRoutes = require("./routes/authRoutes");
-
-// NUEVO: Importamos rutas y controlador de restaurantes
 const restaurantRoutes = require("./routes/restaurantRoutes");
-const { seedRestaurants } = require("./controllers/restaurantController");
+
 
 connectDB();
 

@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const roomController = require("../controllers/roomController");
-
-//router.post("/create-room", roomController.createRoom);
-//router.post("/join-room", roomController.joinRoom);
-//router.post("/vote", roomController.vote);
-//router.get("/room/:code", roomController.getRoom);
-
+const verifyToken = require("../middlewares/authMiddleware");
 
 /**
  * @swagger
@@ -29,7 +24,7 @@ const roomController = require("../controllers/roomController");
  *       200:
  *         description: Sala creada correctamente
  */
-router.post('/create-room', roomController.createRoom);
+router.post('/create-room', verifyToken, roomController.createRoom);
 
 /**
  * @swagger
@@ -55,7 +50,7 @@ router.post('/create-room', roomController.createRoom);
  *       404:
  *         description: Sala no encontrada
  */
-router.post('/join-room', roomController.joinRoom);
+router.post('/join-room', verifyToken, roomController.joinRoom);
 
 /**
  * @swagger
@@ -81,7 +76,7 @@ router.post('/join-room', roomController.joinRoom);
  *       404:
  *         description: Sala no encontrada
  */
-router.post('/vote', roomController.vote);
+router.post('/vote', verifyToken, roomController.vote);
 
 /**
  * @swagger
@@ -103,7 +98,7 @@ router.post('/vote', roomController.vote);
  *         description: Sala no encontrada
  */
 router.get('/room/:code', roomController.getRoom);
-router.post('/start-game', roomController.startGame);
-router.post('/delete-room', roomController.deleteRoom);
-router.post('/finish-voting', roomController.finishVoting);
+router.post('/start-game', verifyToken, roomController.startGame);
+router.post('/delete-room', verifyToken, roomController.deleteRoom);
+router.post('/finish-voting', verifyToken, roomController.finishVoting);
 module.exports = router;
