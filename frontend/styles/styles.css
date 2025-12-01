@@ -138,13 +138,14 @@ h1 { font-size: 2rem; font-weight: 800; }
 
 /* --- Tarjetas (Lobby / Dashboard) --- */
 .card-panel {
+    margin-bottom: 20px;
     background: var(--card-bg);
     padding: 2rem;
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-soft);
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 20px;
+    
 }
 
 /* --- GAME: ESTILO TINDER --- */

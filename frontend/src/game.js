@@ -261,7 +261,8 @@ async function showMatch(matchId) {
     document.getElementById("view-match").classList.remove("hidden");
     
     document.getElementById("match-result").innerHTML = `
-        <h1>¡MATCH! 🎉</h1>
+        <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 10px;">¡MATCH!</h1>
+        <p class="text-muted">¡Todos queréis ir aquí!</p>
         <img src="${match.image}" class="match-img-small">
         <h2 style="margin: 10px 0;">${match.name}</h2>
         <p style="color: #666;">${match.type} • ${match.price}</p>
