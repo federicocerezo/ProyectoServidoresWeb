@@ -2,59 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Votación</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <section id="view-lobby" class="container-center">
-        <div class="card-panel card-compact">
-            <p>SALA: <span id="room-code-display" style="font-size: 2rem; font-weight: bold; color: var(--primary);">...</span></p>
-            <ul id="participants-list"></ul>
-            <div id="host-controls" class="hidden">
-                <button onclick="Game.startVoting()" class="btn btn-primary">EMPEZAR PARTIDA</button>
+<body style="overflow: hidden;"> <section id="view-lobby" class="container-center">
+        <div class="card-panel" style="text-align: center;">
+            <p style="color: var(--text-muted); margin-bottom: 5px;">CÓDIGO DE SALA</p>
+            <h1 id="room-code-display" style="font-size: 3rem; color: var(--primary); letter-spacing: 5px; margin: 0 0 20px 0;">...</h1>
+            
+            <div style="background: #f1f5f9; padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px;">
+                <h3 style="margin-top:0;">En la sala:</h3>
+                <ul id="participants-list" style="list-style: none; padding: 0; margin: 0; color: var(--text-main);"></ul>
             </div>
-            <p id="waiting-msg" class="text-muted">Esperando al anfitrión...</p>
+
+            <div id="host-controls" class="hidden">
+                <button onclick="Game.startVoting()" class="btn btn-primary">¡EMPEZAR!</button>
+            </div>
+            <p id="waiting-msg" class="text-muted hidden">Esperando al anfitrión...</p>
         </div>
     </section>
 
-    <section id="view-swipe" class="container-center hidden">
+    <section id="view-swipe" class="container-center hidden" style="justify-content: flex-start; padding-top: 20px;">
+        
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-bottom: 10px;">
+            <img src="assets/mascota-gastromatch.png" style="height: 30px;">
+            <span class="text-muted" style="font-size: 0.8rem;">GastroMatch</span>
+        </div>
+
         <div class="scene">
             <div id="card-inner" class="card-3d">
                 
                 <button onclick="Game.toggleFavorite()" id="btn-fav" class="card-btn-float btn-fav">★</button>
-                <button onclick="Game.toggleFlip()" class="card-btn-float btn-flip">🗺️</button>
+                <button onclick="Game.toggleFlip()" class="card-btn-float btn-flip">📍</button>
 
                 <div class="card-face">
                     <div class="card-image-wrapper">
-                        <img id="card-image" src="">
+                        <img id="card-image" src="" alt="Restaurante">
                         <div class="card-gradient">
-                            <h2 id="card-name" style="margin:0;"></h2>
-                            <div id="card-tags" class="tags-container"></div>
+                            <h2 id="card-name" style="margin:0; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Nombre</h2>
+                            <div id="card-tags" class="tags-container">
+                                </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card-face back">
                     <iframe id="card-map-frame" width="100%" height="100%" style="border:0; flex:1;" loading="lazy"></iframe>
-                    <div style="padding: 15px; text-align: center;">
-                        <button onclick="Game.toggleFlip()" class="btn btn-secondary">Volver</button>
-                    </div>
+                    <button onclick="Game.toggleFlip()" class="btn-small" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                        Volver a foto
+                    </button>
                 </div>
-
             </div>
         </div>
 
         <div class="actions">
-            <button onclick="Game.vote(false)" class="btn-circle no">❌</button>
-            <button onclick="Game.vote(true)" class="btn-circle yes">❤️</button>
+            <button onclick="Game.vote(false)" class="btn-circle no">✕</button>
+            <button onclick="Game.vote(true)" class="btn-circle yes">♥</button>
         </div>
     </section>
     
     <section id="view-match" class="container-center hidden">
-         <div class="card-panel card-compact">
-            <div id="match-result"></div>
-            <button onclick="Game.finishGame()" class="btn btn-secondary" style="margin-top:20px;">Volver al Inicio</button>
+         <div class="match-overlay">
+            <h1 style="color: var(--primary); font-size: 3rem; margin-bottom: 10px;">¡MATCH!</h1>
+            <p class="text-muted">¡Todos queréis ir aquí!</p>
+            
+            <div id="match-result"></div> <button onclick="Game.finishGame()" class="btn btn-secondary" style="margin-top:30px;">Volver al Inicio</button>
         </div>
     </section>
 

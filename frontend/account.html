@@ -3,29 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Cuenta</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <title>Mi Perfil</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <button onclick="window.location.href='home.html'" class="btn-small" style="margin-bottom: 10px;">← Volver</button>
+    <div class="container" style="padding-top: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <button onclick="window.location.href='home.html'" class="btn-small" style="margin-right: 15px;">←</button>
+            <h1>Mi Perfil</h1>
+        </div>
         
         <div class="card-panel">
-            <h1 id="acc-username">Cargando...</h1>
-            <p style="color: #666;">Gestiona tu perfil y preferencias.</p>
-            
-            <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
-
-            <h3>❤️ Mis Favoritos</h3>
-            <div id="favorites-list" style="margin-bottom: 30px;">
-                <p>Cargando favoritos...</p>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 2rem;">👤</div>
+                <h2 id="acc-username" style="margin:0;">Usuario</h2>
             </div>
 
-            <button onclick="Auth.logout()" class="btn btn-secondary" style="color: var(--primary);">Cerrar Sesión</button>
+            <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Mis Favoritos</h3>
+            
+            <div id="favorites-list" style="margin-top: 15px;">
+                </div>
+
+            <div style="margin-top: 40px;">
+                <button onclick="Auth.logout()" class="btn btn-secondary" style="border: 1px solid #fee2e2; color: #ef4444;">Cerrar Sesión</button>
+            </div>
         </div>
     </div>
+    
     <script src="src/model.js"></script>
     <script src="src/auth.js"></script>
-    <script src="src/account.js"></script>
+    
+    <script>
+        // Sobrescribimos la función de pintado para usar las nuevas clases CSS
+        const API_ACC = "http://localhost:5000/api";
+        const token = sessionStorage.getItem("token");
+        const currentUser = sessionStorage.getItem("user");
+
+        if(!token) window.location.href="index.html";
+
+        window.removeFavorite = async (id) => {
+            if(!confirm("¿Borrar?")) return;
+            try {
+                const res = await fetch(`${API_ACC}/auth/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ username: currentUser, favoriteId: id.toString() })
+                });
+                const data = await res.json();
+                if (data.success) loadProfile();
+            } catch (e) { console.error(e); }
+        };
+
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_ACC}/auth/profile`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const user = await res.json();
+                document.getElementById("acc-username").innerText = user.username;
+                const favContainer = document.getElementById("favorites-list");
+                
+                if (user.favorites && user.favorites.length > 0) {
+                    const resRest = await fetch(`${API_ACC}/restaurants?ids=${user.favorites.join(',')}`);
+                    const myFavs = await resRest.json();
+                    
+                    favContainer.innerHTML = myFavs.map(r => `
+                        <div class="fav-item">
+                            <img src="${r.image}" class="fav-img">
+                            <div style="flex: 1;">
+                                <b style="font-size: 1rem;">${r.name}</b>
+                                <div style="font-size: 0.8rem; color: #666;">${r.type} • ${r.price}</div>
+                            </div>
+                            <button onclick="window.removeFavorite('${r.id}')" style="background:none; border:none; cursor:pointer;">❌</button>
+                        </div>
+                    `).join("");
+                } else {
+                    favContainer.innerHTML = "<p class='text-muted'>Aún no tienes favoritos.</p>";
+                }
+            } catch (e) { console.error(e); }
+        }
+        loadProfile();
+    </script>
 </body>
 </html>

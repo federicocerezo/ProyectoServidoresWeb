@@ -2,69 +2,60 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - GastroMatch</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GastroMatch</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav style="padding: 20px; max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin:0; color: var(--primary);">GastroMatch</h2>
-        <button onclick="window.location.href='account.html'" class="btn-small">👤 Mi Cuenta</button>
+    <nav style="position: fixed; top: 0; width: 100%; padding: 15px 20px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(248,250,252,0.9); backdrop-filter: blur(10px);">
+        <h3 style="margin:0; color: var(--primary);">GastroMatch</h3>
+        <button onclick="window.location.href='account.html'" class="btn-small">👤 Perfil</button>
     </nav>
 
-    <div class="container">
-        <div class="grid-options">
+    <div class="container" style="padding-top: 80px;">
+        
+        <h2 style="margin-bottom: 20px;">¿Qué plan tienes hoy?</h2>
+
+        <div class="card-panel">
+            <h3 style="margin-bottom: 15px;">🚀 Nueva Partida</h3>
             
-            <div class="card-panel">
-                <h3>🍽️ Crear Sala</h3>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Personaliza tu partida:</p>
-                
-                <label for="filter-type">Tipo de Comida:</label>
-                <select id="filter-type" class="input-field">
-                    <option value="Any">Cualquiera</option>
-                    <option value="Italiana">Italiana 🍕</option>
-                    <option value="Japonesa">Japonesa 🍣</option>
-                    <option value="Mexicana">Mexicana 🌮</option>
-                    <option value="Americana">Americana 🍔</option>
-                    <option value="Española">Española 🥘</option>
-                    <option value="India">India 🍛</option>
-                    <option value="Saludable">Saludable 🥗</option>
-                    <option value="Vegana">Vegana 🥬</option>
-                    <option value="Fusión">Fusión 🍱</option>
-                </select>
-                
-                <label for="filter-price">Precio Máximo (por persona):</label>
-                <select id="filter-price" class="input-field">
-                    <option value="Any">Cualquiera</option>
-                    <option value="15">Menos de 15€ (Económico)</option>
-                    <option value="25">Menos de 25€ (Normal)</option>
-                    <option value="40">Menos de 40€ (Capricho)</option>
-                    <option value="80">Menos de 80€ (Lujo)</option>
-                </select>
-
-                <label for="filter-limit">Cantidad de Restaurantes:</label>
-                <select id="filter-limit" class="input-field">
-                    <option value="10">10 (Partida Rápida)</option>
-                    <option value="20" selected>20 (Estándar)</option>
-                    <option value="30">30 (Larga)</option>
-                </select>
-
-                <button onclick="Home.createRoom(this)" class="btn btn-primary" style="margin-top: 15px;">
-                    Crear Nueva Sala
-                </button>
-                
-                <button onclick="Home.createFavoritesRoom(this)" class="btn btn-secondary" style="margin-top:10px; color: var(--primary);">
-                    ⭐ Jugar con Mis Favoritos
-                </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; margin-left: 10px;">Comida</label>
+                    <select id="filter-type" class="input-field" style="margin-bottom:0;">
+                        <option value="Any">Todo</option>
+                        <option value="Italiana">Italiana 🍕</option>
+                        <option value="Japonesa">Japonesa 🍣</option>
+                        <option value="Mexicana">Mexicana 🌮</option>
+                        <option value="Americana">Americana 🍔</option>
+                        <option value="Española">Española 🥘</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; margin-left: 10px;">Precio</label>
+                    <select id="filter-price" class="input-field" style="margin-bottom:0;">
+                        <option value="Any">Cualquiera</option>
+                        <option value="15">€ Barato</option>
+                        <option value="25">€€ Normal</option>
+                        <option value="40">€€€ Caro</option>
+                    </select>
+                </div>
             </div>
+            <select id="filter-limit" class="input-field hidden"><option value="20" selected>20</option></select>
 
-            <div class="card-panel">
-                <h3>🤝 Unirse a una Sala</h3>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Introduce el código que te han pasado:</p>
-                
-                <input type="text" id="room-code" placeholder="CÓDIGO DE SALA" class="input-field" style="text-transform:uppercase; letter-spacing: 2px; text-align: center;">
-                
-                <button onclick="Home.joinRoom(this)" class="btn btn-primary">Entrar a Sala</button>
+            <button onclick="Home.createRoom(this)" class="btn btn-primary" style="margin-bottom: 10px;">
+                Crear Sala
+            </button>
+            <button onclick="Home.createFavoritesRoom(this)" class="btn btn-secondary" style="border: none; color: var(--primary);">
+                ⭐ Usar mis favoritos
+            </button>
+        </div>
+
+        <div class="card-panel">
+            <h3 style="margin-bottom: 15px;">🎟️ Unirse</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="room-code" placeholder="CÓDIGO" class="input-field" style="text-transform:uppercase; letter-spacing: 2px; text-align: center; font-weight: bold; margin-bottom: 0;">
+                <button onclick="Home.joinRoom(this)" class="btn btn-primary" style="width: auto; padding: 0 30px;">→</button>
             </div>
         </div>
     </div>

@@ -2,32 +2,33 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GastroMatch - Login</title>
-    <link rel="stylesheet" href="styles/styles.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GastroMatch</title>
+    <link rel="stylesheet" href="styles.css">
+    </head>
 <body>
     <div class="container-center">
-        <div class="card-panel login-card">
-            <h1 style="color: var(--primary); margin-bottom: 5px;">GastroMatch 🍔</h1>
-            <p style="color: #6b7280; margin-bottom: 20px;">Decide dónde comer sin discutir</p>
-            
+        <img src="assets/mascota-gastromatch.png" alt="Chef" style="width: 150px; margin-bottom: 20px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));">
+        
+        <h1 style="color: var(--primary); margin-bottom: 5px;">GastroMatch</h1>
+        <p style="color: var(--text-muted); margin-bottom: 40px; text-align: center;">Haz match con tu comida favorita.</p>
+        
+        <div class="login-card">
             <div class="auth-switch">
-                <button onclick="showForm('login')" id="tab-login" class="btn-text active">Iniciar Sesión</button>
-                <span class="separator">|</span>
-                <button onclick="showForm('register')" id="tab-register" class="btn-text">Registrarse</button>
+                <button onclick="showForm('login')" id="tab-login" class="btn-text active">Ingresar</button>
+                <button onclick="showForm('register')" id="tab-register" class="btn-text">Registro</button>
             </div>
 
             <div id="form-login">
                 <input type="text" id="login-user" placeholder="Usuario" class="input-field">
                 <input type="password" id="login-pass" placeholder="Contraseña" class="input-field">
-                <button onclick="Auth.login()" class="btn btn-primary">Entrar</button>
+                <button onclick="Auth.login()" class="btn btn-primary">Iniciar Sesión</button>
             </div>
 
             <div id="form-register" class="hidden">
-                <input type="text" id="reg-user" placeholder="Elige Usuario" class="input-field">
-                <input type="password" id="reg-pass" placeholder="Elige Contraseña" class="input-field">
-                <button onclick="Auth.register()" class="btn btn-secondary">Crear Cuenta</button>
+                <input type="text" id="reg-user" placeholder="Elige tu usuario" class="input-field">
+                <input type="password" id="reg-pass" placeholder="Crea una contraseña" class="input-field">
+                <button onclick="Auth.register()" class="btn btn-primary">Crear Cuenta</button>
             </div>
         </div>
     </div>
