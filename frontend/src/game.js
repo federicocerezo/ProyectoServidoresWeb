@@ -220,9 +220,24 @@ async function nextCard() {
     }
 }
 
-function showMatch(matchId) {
-    const match = restaurants.find(r => r.id === matchId) || { name: "Restaurante", image: "", type: "", price: "" };
-    
+async function showMatch(matchId) {
+    let match = restaurants.find(r => r.id === matchId);
+
+    if (!match) {
+        try {
+            console.log("Recuperando detalles del match desde el servidor...");
+            const res = await fetch(`${API}/restaurants?ids=${matchId}`);
+            const data = await res.json();
+            if (data && data.length > 0) {
+                match = data[0];
+            }
+        } catch (e) {
+            console.error("Error buscando el match:", e);
+        }
+    }
+
+    match = match || { name: "Restaurante", image: "", type: "", price: "???" };
+
     document.getElementById("view-swipe").classList.add("hidden");
     document.getElementById("view-match").classList.remove("hidden");
     
@@ -234,6 +249,7 @@ function showMatch(matchId) {
         <p><i>${match.address || ""}</i></p>
     `;
 
+    // Guardar en historial
     fetch(`${API}/auth/update`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: currentUser, historyItem: { name: match.name } })
