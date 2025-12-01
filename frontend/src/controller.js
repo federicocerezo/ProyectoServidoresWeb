@@ -21,7 +21,7 @@ const Controller = {
     createRoom: async () => {
         const type = document.getElementById("filter-type").value;
         const price = document.getElementById("filter-price").value;
-
+        const token = sessionStorage.getItem("token");
         const res = await fetch(`${API_URL}/create-room`, {
             method: "POST",
             headers: { 
@@ -51,7 +51,7 @@ const Controller = {
         const code = document.getElementById("room-code-input").value;
         if (!user || !code) return alert("Datos incompletos");
         
-        
+        const token = sessionStorage.getItem("token");
         const res = await fetch(`${API_URL}/join-room`, {
             method: "POST",
             headers: { 
@@ -74,6 +74,7 @@ const Controller = {
 
     startVoting: async () => {
         // Primero, avisamos al backend
+        const token = sessionStorage.getItem("token");
         await fetch(`${API_URL}/start-game`, {
             method: "POST",
             headers: { 
@@ -123,6 +124,7 @@ const Controller = {
         const rest = Model.restaurants[Model.currentIndex];
 
         if (liked) {
+            const token = sessionStorage.getItem("token");
             await fetch(`${API_URL}/vote`, {
                 method: "POST",
                 headers: { 
@@ -199,6 +201,7 @@ const Controller = {
     },
     finishGame: async () => {
         if (confirm("¿Finalizar y borrar sala?")) {
+            const token = sessionStorage.getItem("token");
             await fetch(`${API_URL}/delete-room`, {
                 method: "POST",
                 headers: { 

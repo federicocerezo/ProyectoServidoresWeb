@@ -240,6 +240,8 @@ async function nextCard() {
             </div>
         `;
         
+        const token = sessionStorage.getItem("token");
+
         try {
             await fetch(`${API}/finish-voting`, {
                 method: "POST", 
@@ -285,15 +287,22 @@ async function showMatch(matchId) {
         <p><i>${match.address || ""}</i></p>
     `;
 
+    const token = sessionStorage.getItem("token");
+
     // Guardar en historial
-    fetch(`${API}/auth/update`, {
-        method: "POST", 
-        headers: { 
-            "Content-Type": "application/json" ,
-            "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({ username: currentUser, historyItem: { name: match.name } })
-    });
+    if (token) {
+        fetch(`${API}/auth/update`, {
+            method: "POST", 
+            headers: { 
+                "Content-Type": "application/json" ,
+                "Authorization": `Bearer ${token}` 
+            },
+            body: JSON.stringify({ 
+                username: currentUser, 
+                historyItem: { name: match.name } 
+            })
+        }).catch(e => console.error("Error guardando historial:", e));
+    }
 }
 
 function showNoMatch() {

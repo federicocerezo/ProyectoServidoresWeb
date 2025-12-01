@@ -11,6 +11,7 @@ window.removeFavorite = async (id) => {
 
     try {
         // La lógica del backend hace "toggle": si ya existe, lo borra.
+        const token = sessionStorage.getItem("token");
         const res = await fetch(`${API_ACC}/auth/update`, {
             method: "POST",
             headers: { 
@@ -40,6 +41,7 @@ window.removeFavorite = async (id) => {
 
 async function loadProfile() {
     try {
+        const token = sessionStorage.getItem("token");
         const res = await fetch(`${API_ACC}/auth/profile`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
