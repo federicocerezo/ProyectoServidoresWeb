@@ -70,14 +70,33 @@ const Game = {
         });
     },
 
+    // Busca el objeto const Game = { ... } y actualiza su método vote:
+
     vote: async (liked) => {
         const rest = restaurants[currentIndex];
+        
         if (liked) {
-             await fetch(`${API}/vote`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: roomCode, restaurantId: rest.id })
-            });
+            try {
+                // 1. Esperamos la respuesta del servidor
+                const res = await fetch(`${API}/vote`, {
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: roomCode, restaurantId: rest.id })
+                });
+                
+                const data = await res.json();
+
+                // 2. Si el servidor nos dice que hay match, lo mostramos YA
+                if (data.success && data.match) {
+                    showMatch(data.restaurantId);
+                    return; // IMPORTANTE: Detenemos la función para NO pasar de carta
+                }
+            } catch (e) {
+                console.error("Error al enviar voto:", e);
+            }
         }
+        
+        // 3. Solo si no hubo match (o el voto fue 'No'), pasamos al siguiente
         nextCard();
     },
 

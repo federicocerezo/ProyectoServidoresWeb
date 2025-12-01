@@ -43,19 +43,32 @@ exports.joinRoom = async (req, res) => {
 
     res.json({ success: true, room });
 };
+// Busca la función exports.vote y sustitúyela por esta versión:
+
 exports.vote = async (req, res) => {
     const { code, restaurantId } = req.body;
     const voteField = `votes.${restaurantId}`;
 
+    // 1. Incrementamos el voto y pedimos el documento actualizado ({new: true})
     const room = await Room.findOneAndUpdate(
         { code },
-        { $inc: { [voteField]: 1 } }, // Incrementa en 1 atómicamente
+        { $inc: { [voteField]: 1 } }, 
         { new: true }
     );
 
     if (!room) return res.status(404).json({ error: "Sala no existe" });
 
-    res.json({ success: true });
+    // 2. COMPROBACIÓN INMEDIATA DE MATCH
+    // Obtenemos el total de usuarios y los votos actuales para este restaurante
+    const totalUsers = room.users.length;
+    const currentVotes = room.votes.get(String(restaurantId)); // Mongoose Maps usan claves string
+
+    // Si los votos igualan o superan a los usuarios, ¡es un Match!
+    if (currentVotes >= totalUsers) {
+        return res.json({ success: true, match: true, restaurantId });
+    }
+
+    res.json({ success: true, match: false });
 };
 
 // backend/src/controllers/roomController.js
