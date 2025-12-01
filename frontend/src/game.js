@@ -227,9 +227,10 @@ function showMatch(matchId) {
     document.getElementById("view-match").classList.remove("hidden");
     
     document.getElementById("match-result").innerHTML = `
+        <h1>¡MATCH! 🎉</h1>
         <img src="${match.image}" class="match-img-small">
         <h2 style="margin: 10px 0;">${match.name}</h2>
-        <p style="color: #666;">${match.type} • ${match.averagePrice}€</p>
+        <p style="color: #666;">${match.type} • ${match.price}</p>
         <p><i>${match.address || ""}</i></p>
     `;
 
