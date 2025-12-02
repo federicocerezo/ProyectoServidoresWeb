@@ -266,9 +266,9 @@ h1 { font-size: 2rem; font-weight: 800; }
 .btn-circle.yes { 
     color: white; 
     /* Opcional: Hacer el botón de like más prominente con gradiente */
-    background: linear-gradient(135deg, #df3bbb 0%, #da01ab 100%);
+    background: linear-gradient(135deg, #fd5da8(313, 72%, 55%) 0%, #e11584 100%);
     color: white;
-    box-shadow: 0 10px 25px rgba(155, 73, 128, 0.4);
+    box-shadow: 0 10px 25px #ff1694(155, 73, 128, 0.4);
 }
 
 /* Botones sobre la carta (Info, Fav) */
