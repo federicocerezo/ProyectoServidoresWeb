@@ -4,6 +4,7 @@ const Controller = {
     init: () => {
         View.showSection("home");
     },
+    
     login: () => {
         const user = document.getElementById("username-input").value;
         if (!user) return alert("Nombre obligatorio");
@@ -101,8 +102,6 @@ const Controller = {
             // Si no hay, dejamos todos para no romper el juego
         } else {
             // Reemplazamos temporalmente la lista del modelo
-            // Nota: Para hacerlo bien, deberíamos tener una lista 'original' y una 'display', 
-            // pero para este ejemplo, sobrescribir funciona si recargamos la página al acabar.
             Model.restaurants = filtered;
         }
 
@@ -177,7 +176,6 @@ const Controller = {
                     app.router.navigate("swipe");
                 }
 
-                // ... (Lógica de matches anterior) ...
                 if (data.matches && data.matches.length > 0) {
                     Model.matches = Model.restaurants.filter(r => data.matches.includes(r.id));
                     if (currentSection === "view-match" && !Model.historySaved) {
@@ -199,6 +197,7 @@ const Controller = {
             }
         }, 3000);
     },
+
     finishGame: async () => {
         if (confirm("¿Finalizar y borrar sala?")) {
             const token = sessionStorage.getItem("token");
@@ -210,7 +209,6 @@ const Controller = {
                 },
                 body: JSON.stringify({ code: Model.roomCode })
             });
-            // El polling detectará el 404 y nos mandará al home
         }
     }
 };

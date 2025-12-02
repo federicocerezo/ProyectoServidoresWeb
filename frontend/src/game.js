@@ -20,7 +20,7 @@ else document.getElementById("waiting-msg").classList.remove("hidden");
 
 // Cargar favoritos del usuario
 async function loadFavorites() {
-    // CAMBIO: Leer token de sessionStorage
+    // Leer token de sessionStorage
     const token = sessionStorage.getItem("token");
     try {
         const res = await fetch(`${API}/auth/profile`, {
@@ -34,7 +34,6 @@ async function loadFavorites() {
 }
 loadFavorites();
 
-// ... (El bloque de POLLING se mantiene igual, omitido por brevedad) ...
 const pollInterval = setInterval(async () => {
     try {
         const res = await fetch(`${API}/room/${roomCode}`);
@@ -71,13 +70,11 @@ const Game = {
             method: "POST", 
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // <--- IMPORTANTE: Enviar el Token
+                "Authorization": `Bearer ${token}` 
             },
             body: JSON.stringify({ code: roomCode })
         });
     },
-
-    // Busca el objeto const Game = { ... } y actualiza su método vote:
 
     vote: async (liked) => {
         const rest = restaurants[currentIndex];
@@ -100,7 +97,7 @@ const Game = {
                 // 2. Si el servidor nos dice que hay match, lo mostramos YA
                 if (data.success && data.match) {
                     showMatch(data.restaurantId);
-                    return; // IMPORTANTE: Detenemos la función para NO pasar de carta
+                    return; // Detenemos la función para NO pasar de carta
                 }
             } catch (e) {
                 console.error("Error al enviar voto:", e);
@@ -118,7 +115,6 @@ const Game = {
 
     toggleFavorite: async () => {
         const rest = restaurants[currentIndex];
-        // CAMBIO: Leer token de sessionStorage
         const token = sessionStorage.getItem("token");
         const btn = document.getElementById("btn-fav");
         
@@ -141,7 +137,7 @@ const Game = {
     },
 
     finishGame: async () => {
-        const token = sessionStorage.getItem("token"); // <--- Recuperar token
+        const token = sessionStorage.getItem("token"); 
 
         if (isHost) {
             try {
@@ -150,7 +146,7 @@ const Game = {
                     method: "POST", 
                     headers: { 
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}` // <--- Añadir header
+                        "Authorization": `Bearer ${token}` 
                     },
                     body: JSON.stringify({ code: roomCode })
                 });
@@ -162,7 +158,6 @@ const Game = {
     }
 };
 
-// ... (Resto de funciones: startGameLogic, renderCard, nextCard, showMatch, showNoMatch se mantienen igual) ...
 async function startGameLogic(data) {
     document.getElementById("view-lobby").classList.add("hidden");
     document.getElementById("view-swipe").classList.remove("hidden");

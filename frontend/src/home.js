@@ -1,5 +1,4 @@
 const API_ROOM = "http://localhost:5000/api";
-// CAMBIO: Leer de sessionStorage
 const user = sessionStorage.getItem("user");
 const token = sessionStorage.getItem("token");
 

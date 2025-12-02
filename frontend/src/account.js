@@ -1,6 +1,5 @@
 const API_ACC = "http://localhost:5000/api";
 const token = sessionStorage.getItem("token");
-// RECUPERAMOS EL USUARIO (necesario para la petición de update)
 const currentUser = sessionStorage.getItem("user");
 
 if(!token) window.location.href="index.html";

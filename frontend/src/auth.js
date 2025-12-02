@@ -51,8 +51,6 @@ const Auth = {
         window.location.href = "index.html";
     },
 
-    // --- Funciones del Perfil (Movidas desde account.html) ---
-
     loadProfile: async () => {
         const token = sessionStorage.getItem("token");
         if(!token) {

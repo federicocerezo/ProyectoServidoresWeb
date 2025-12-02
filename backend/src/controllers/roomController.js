@@ -14,7 +14,7 @@ exports.createRoom = async (req, res) => {
         code,
         users: [req.body.username],
         filters: filters,
-        allowedIds: allowedIds // <--- ¡AQUÍ FALTABA ESTA LÍNEA!
+        allowedIds: allowedIds 
     });
 
     await newRoom.save();
@@ -34,7 +34,7 @@ exports.joinRoom = async (req, res) => {
         return res.json({ success: false, error: "La votación ya ha comenzado" });
     }
 
-    // Si todo está bien, añadimos al usuario (usando la lógica atómica que vimos antes)
+    // Si todo está bien, añadimos al usuario 
     room = await Room.findOneAndUpdate(
         { code },
         { $addToSet: { users: username } },
@@ -43,13 +43,12 @@ exports.joinRoom = async (req, res) => {
 
     res.json({ success: true, room });
 };
-// Busca la función exports.vote y sustitúyela por esta versión:
 
 exports.vote = async (req, res) => {
     const { code, restaurantId } = req.body;
     const voteField = `votes.${restaurantId}`;
 
-    // 1. Incrementamos el voto y pedimos el documento actualizado ({new: true})
+    // 1. Incrementamos el voto y pedimos el documento actualizado 
     const room = await Room.findOneAndUpdate(
         { code },
         { $inc: { [voteField]: 1 } }, 
@@ -63,7 +62,7 @@ exports.vote = async (req, res) => {
     const totalUsers = room.users.length;
     const currentVotes = room.votes.get(String(restaurantId)); // Mongoose Maps usan claves string
 
-    // Si los votos igualan o superan a los usuarios, ¡es un Match!
+    // Si los votos igualan o superan a los usuarios, es un Match
     if (currentVotes >= totalUsers) {
         return res.json({ success: true, match: true, restaurantId });
     }
@@ -71,7 +70,6 @@ exports.vote = async (req, res) => {
     res.json({ success: true, match: false });
 };
 
-// backend/src/controllers/roomController.js
 
 // Marcar usuario como finalizado de forma segura
 exports.finishVoting = async (req, res) => {

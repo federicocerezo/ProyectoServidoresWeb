@@ -2,7 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// CORRECCIÓN: Usar variable de entorno
+// Usar variable de entorno
 const SECRET = process.env.JWT_SECRET || "secreto_inseguro_por_defecto";
 
 exports.register = async (req, res) => {
@@ -43,10 +43,9 @@ exports.login = async (req, res) => {
 };
 
 exports.getProfile = async (req, res) => {
-    // YA NO verificamos el token aquí manualmente.
     // El middleware 'verifyToken' ya se aseguró de que req.user existe.
     try {
-        const user = await User.findById(req.user.id); // Usamos el ID del token decodificado
+        const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
         
         // No devolvemos la contraseña
@@ -58,13 +57,9 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-    // Usamos el username del token para más seguridad, o confiamos en el body si es admin
-    // Por ahora mantenemos tu lógica original pero protegida por middleware
+    // Usamos el username del token para más seguridad
     const { username, historyItem, favoriteId } = req.body;
     
-    // Validación extra opcional: asegurar que uno solo edita su propio usuario
-    // if (req.user.username !== username) return res.status(403).json({error: "No autorizado"});
-
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ error: "Usuario no existe" });
 
