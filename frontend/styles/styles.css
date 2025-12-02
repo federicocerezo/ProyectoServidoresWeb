@@ -264,9 +264,9 @@ h1 { font-size: 2rem; font-weight: 800; }
 
 .btn-circle.no { color: #ef4444; }
 .btn-circle.yes { 
-    color: #e654c6; 
+    color: white; 
     /* Opcional: Hacer el botón de like más prominente con gradiente */
-    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #df3bbb 0%, #da01ab 100%);
     color: white;
     box-shadow: 0 10px 25px rgba(155, 73, 128, 0.4);
 }
