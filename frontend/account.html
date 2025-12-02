@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <div class="container" style="padding-top: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <button onclick="window.location.href='home.html'" class="btn-small" style="margin-right: 15px;">←</button>
+            <h1>Mi Perfil</h1>
+        </div>
+        
+        <div class="card-panel">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 2rem;">👤</div>
+                <h2 id="acc-username" style="margin:0;">Usuario</h2>
+            </div>
+
+            <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Mis Favoritos</h3>
+            
+            <div id="favorites-list" style="margin-top: 15px;">
+                </div>
+
+            <div style="margin-top: 40px;">
+                <button onclick="Auth.logout()" class="btn btn-secondary" style="border: 1px solid #fee2e2; color: #ef4444;">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="src/auth.js"></script>
+</body>
+</html>

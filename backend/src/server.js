@@ -1,18 +1,24 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./database");
+const connectDB = require("./database"); 
 const roomRoutes = require("./routes/roomRoutes");
+const authRoutes = require("./routes/authRoutes");
+const restaurantRoutes = require("./routes/restaurantRoutes");
+
 
 connectDB();
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use("/api", roomRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/restaurants", restaurantRoutes); 
 
-// --- Swagger ---
+// Swagger setup
 const setupSwagger = require('./swagger');
 setupSwagger(app);
 

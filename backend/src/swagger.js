@@ -13,7 +13,7 @@ const options = {
       { url: "http://localhost:5000/api" }
     ]
   },
-  apis: ["./src/routes/*.js"], // aquí se buscan los comentarios JSDoc
+  apis: ["./src/routes/*.js"], // Archivos donde se encuentran las anotaciones de Swagger
 };
 
 const swaggerSpec = swaggerJSDoc(options);
